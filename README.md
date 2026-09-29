@@ -29,20 +29,11 @@ docker compose -f docker/docker-compose.yml up --build   # frontend :8081 + back
 # backend local: BACKEND_CONTEXT=../gameeducator-backend docker compose -f docker/docker-compose.yml up --build
 ```
 
-## Automação de UI (Cucumber.js + Playwright)
+## Automação
 
-```bash
-docker compose -f docker/docker-compose.yml -f docker/docker-compose.automation.yml up -d --build backend frontend
-cd ui-tests
-npm ci
-npx playwright install --with-deps chromium   # só na 1ª vez
-npm test                                      # AUTOMATION_FRONTEND_URL=http://outro para outro host
-docker compose -f ../docker/docker-compose.yml -f ../docker/docker-compose.automation.yml down -v
-```
-
-Relatórios: `ui-tests/reports/cucumber-report.html` e `reports/junit-report.xml`.
+A suíte de UI (Cucumber.js + Playwright) fica no repositório [gameeducator-automation](https://github.com/IHPNULL/gameeducator-automation).
 
 ## CI
 
-`Jenkinsfile`: testes na imagem, build da imagem Nginx e suíte de UI contra o backend real.
+`Jenkinsfile`: testes na imagem e build da imagem Nginx.
 O Jenkins local está descrito no repositório do backend (`jenkins/README.md`).

@@ -1,7 +1,6 @@
-// Pipeline do frontend do GameEducator: roda os testes (Vitest) dentro da imagem,
-// builda a imagem Nginx e roda a suite Cucumber+Playwright de UI contra o
-// frontend real + um backend (perfil "automation") construido do repositorio
-// gameeducator-backend.
+// Pipeline do frontend do GameEducator: roda os testes (Vitest) dentro da imagem
+// e builda a imagem Nginx. A automacao Cucumber+Playwright fica no repo
+// gameeducator-automation.
 pipeline {
     agent any
 
@@ -14,12 +13,10 @@ pipeline {
 
     parameters {
         string(name: 'DOCKER_REGISTRY', defaultValue: '', description: 'Docker registry host para publicar a imagem em main')
-        string(name: 'BACKEND_CONTEXT', defaultValue: 'https://github.com/IHPNULL/gameeducator-backend.git#main', description: 'Contexto de build do backend (URL Git ou caminho)')
     }
 
     environment {
         COMPOSE_PROJECT_NAME = "gameeducator-frontend-${env.BUILD_NUMBER}"
-        BACKEND_CONTEXT = "${params.BACKEND_CONTEXT}"
     }
 
     stages {
@@ -72,44 +69,6 @@ pipeline {
                     if (env.BRANCH_NAME == 'main') {
                         sh "docker tag gameeducator-frontend:${IMAGE_TAG} gameeducator-frontend:latest"
                     }
-                }
-            }
-        }
-
-        stage('Automacao: imagem ui-tests') {
-            steps {
-                sh "docker build -f docker/ui-tests.Dockerfile -t gameeducator-ui-tests:${IMAGE_TAG} ui-tests"
-            }
-        }
-
-        stage('Automacao: Cucumber UI') {
-            steps {
-                // Constroi o backend a partir do repositorio gameeducator-backend e sobe ao lado do frontend ja construido.
-                sh "docker compose -f docker/docker-compose.yml -f docker/docker-compose.automation.yml build backend"
-                sh "docker compose -f docker/docker-compose.yml -f docker/docker-compose.automation.yml up -d --no-build backend frontend"
-                sh '''
-                    ok=0
-                    for i in $(seq 1 45); do
-                        if docker compose -f docker/docker-compose.yml -f docker/docker-compose.automation.yml exec -T frontend wget -q -O- http://127.0.0.1/v3/api-docs > /dev/null 2>&1; then
-                            ok=1; break
-                        fi
-                        sleep 2
-                    done
-                    if [ "$ok" != "1" ]; then
-                        echo "ERRO: backend (perfil automation) nao respondeu via frontend apos 90s" >&2
-                        exit 1
-                    fi
-                '''
-                sh "docker run --name ${COMPOSE_PROJECT_NAME}-ui-tests --network ${COMPOSE_PROJECT_NAME}_default gameeducator-ui-tests:${IMAGE_TAG}"
-            }
-            post {
-                always {
-                    sh "docker cp ${COMPOSE_PROJECT_NAME}-ui-tests:/app/reports ui-tests-reports || true"
-                    sh "docker rm -f ${COMPOSE_PROJECT_NAME}-ui-tests || true"
-                    sh 'docker compose -f docker/docker-compose.yml -f docker/docker-compose.automation.yml logs backend || true'
-                    sh 'docker compose -f docker/docker-compose.yml -f docker/docker-compose.automation.yml down -v || true'
-                    junit testResults: 'ui-tests-reports/junit-report.xml', allowEmptyResults: true
-                    archiveArtifacts artifacts: 'ui-tests-reports/**', allowEmptyArchive: true
                 }
             }
         }
