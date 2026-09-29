@@ -1,0 +1,7 @@
+.git/
+.idea/
+node_modules/
+dist/
+coverage/
+ui-tests/node_modules/
+ui-tests/reports/

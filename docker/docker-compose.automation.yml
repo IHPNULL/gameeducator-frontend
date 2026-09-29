@@ -1,0 +1,13 @@
+# Override sobre docker/docker-compose.yml: backend no perfil "automation" (H2 em
+# memoria com dados fixos), sem o servico "db". Usado pela suite Cucumber+Playwright
+# de ui-tests/, nunca contra dados reais.
+#
+# Uso (raiz do repo):
+#   docker compose -f docker/docker-compose.yml -f docker/docker-compose.automation.yml up -d backend frontend
+services:
+  backend:
+    environment:
+      SPRING_PROFILES_ACTIVE: automation
+      # A suite de UI conteinerizada acessa o frontend por http://frontend na rede do Compose.
+      APP_CORS_ALLOWED_ORIGINS: http://localhost:5173,http://localhost:4173,http://localhost:8081,http://frontend
+    depends_on: !reset []
