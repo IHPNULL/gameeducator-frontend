@@ -24,9 +24,9 @@ pipeline {
             steps {
                 deleteDir()
                 script {
-                    if (env.LOCAL_SOURCE_DIR) {
+                    if (env.LOCAL_SOURCES_ROOT) {
                         sh """
-                            tar -C "${env.LOCAL_SOURCE_DIR}" \\
+                            tar -C "${env.LOCAL_SOURCES_ROOT}/gameeducator-frontend" \\
                                 --exclude=.git --exclude=node_modules --exclude=ui-tests/reports \\
                                 -cf - . | tar -xf -
                         """

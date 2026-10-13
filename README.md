@@ -7,6 +7,20 @@ Interface web do GameEducator, plataforma de ensino gamificada. A API fica no re
 
 **Integrantes (Grupo 6):** Italo Haas Pascoli (190294) · Maria Eduarda Mota Zandonade (200953)
 
+## Setup local (3 repositórios lado a lado)
+
+```
+gameeducator/                 # qualquer pasta
+├── gameeducator-backend      # API + Jenkins local (jenkins/)
+├── gameeducator-frontend     # app Vue
+└── gameeducator-automation   # suítes Cucumber (API + UI)
+```
+
+```bash
+mkdir gameeducator && cd gameeducator
+for r in backend frontend automation; do git clone https://github.com/IHPNULL/gameeducator-$r.git; done
+```
+
 ## Como rodar
 
 Suba o backend (`./mvnw spring-boot:run` no repositório do backend, porta 8080) e depois:
@@ -26,7 +40,7 @@ npm run build
 
 ```bash
 docker compose -f docker/docker-compose.yml up --build   # frontend :8081 + backend (construído do repo gameeducator-backend) :8080 + Postgres
-# backend local: BACKEND_CONTEXT=../gameeducator-backend docker compose -f docker/docker-compose.yml up --build
+# backend a partir do checkout local em vez do GitHub: cp .env.example docker/.env
 ```
 
 ## Automação
@@ -36,4 +50,5 @@ A suíte de UI (Cucumber.js + Playwright) fica no repositório [gameeducator-aut
 ## CI
 
 `Jenkinsfile`: testes na imagem e build da imagem Nginx.
-O Jenkins local está descrito no repositório do backend (`jenkins/README.md`).
+O job `gameeducator-frontend` do Jenkins local está descrito no repositório do backend (`jenkins/README.md`).
+As portas 8080/5432 são as mesmas do backend: rode uma stack por vez.

@@ -15,7 +15,7 @@ npm run test:coverage             # report in coverage/
 npm run build
 ```
 
-UI automation (Cucumber.js + Playwright) lives in the separate `gameeducator-automation` repo. `docker/docker-compose.yml` builds the backend from the Git repo `gameeducator-backend` (override with `BACKEND_CONTEXT=<path or url>`); `Jenkinsfile` runs tests in the image and builds the Nginx image. Docker build context is the repo root for `docker/frontend.Dockerfile`.
+UI automation (Cucumber.js + Playwright) lives in the separate `gameeducator-automation` repo. `docker/docker-compose.yml` builds the backend from the Git repo `gameeducator-backend` (override with `BACKEND_CONTEXT=<path or url>`); For local sources instead of GitHub: `cp .env.example docker/.env` (paths relative to `docker/`). The stack shares ports 8080/5432 with the backend repo's compose. In the local Jenkins the job is `gameeducator-frontend` (defined in the backend repo's `jenkins/`). `Jenkinsfile` runs tests in the image and builds the Nginx image. Docker build context is the repo root for `docker/frontend.Dockerfile`.
 
 ## Architecture
 
