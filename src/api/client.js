@@ -89,6 +89,25 @@ export function buscarMedalhas(cursoId) {
   return request(`/api/cursos/${cursoId}/medalhas`)
 }
 
+export function buscarTentativas(desafioId) {
+  return request(`/api/desafios/${desafioId}/tentativas`)
+}
+
+export function buscarRecomendacoes(cursoId) {
+  return request(`/api/cursos/${cursoId}/recomendacoes`)
+}
+
+export function perguntarAssistente(cursoId, pergunta) {
+  return request(`/api/cursos/${cursoId}/assistente`, {
+    method: 'POST',
+    body: { pergunta },
+  })
+}
+
+export function buscarEventosLaboratorio(laboratorio) {
+  return request(`/api/laboratorios/${laboratorio}/eventos`)
+}
+
 export function buscarDesempenhoTurma(cursoId) {
   return request(`/api/cursos/${cursoId}/turma/desempenho`)
 }

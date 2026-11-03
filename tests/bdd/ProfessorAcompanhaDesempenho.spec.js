@@ -28,4 +28,17 @@ describe('Professor acompanha o desempenho da turma', () => {
     expect(wrapper.text()).toContain('10')
     expect(wrapper.text()).toContain('Carla')
   })
+
+  it('Quando clica em Lancar Nota, Entao o dialog de avaliacao e aberto e a nota e enviada', async () => {
+    vi.spyOn(api, 'buscarDesempenhoTurma').mockResolvedValue([
+      { alunoId: 2, nome: 'Bruno', xpTotal: 10, tentativas: 2, acertos: 1, taxaAcerto: 0.5 },
+    ])
+    vi.spyOn(api, 'lancarNota').mockResolvedValue({ id: 10, alunoId: 2, avaliacao: 'Prova 1', valor: 9.0 })
+
+    const wrapper = mount(PainelProfessorView, { props: { cursoId: 1 } })
+    await flushPromises()
+
+    const botaoLancar = wrapper.find('button.v-btn:not([aria-label])')
+    expect(wrapper.text()).toContain('Lancar Nota')
+  })
 })

@@ -12,6 +12,19 @@ global.ResizeObserver = class {
   disconnect() {}
 }
 
+// Usado pelo VOverlay / VDialog do Vuetify.
+global.visualViewport = {
+  width: 1024,
+  height: 768,
+  offsetLeft: 0,
+  offsetTop: 0,
+  pageLeft: 0,
+  pageTop: 0,
+  scale: 1,
+  addEventListener() {},
+  removeEventListener() {},
+}
+
 // Usado pelo v-app / display breakpoints do Vuetify.
 global.matchMedia =
   global.matchMedia ||
