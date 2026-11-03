@@ -61,196 +61,221 @@ onMounted(carregar)
       icone="mdi-chart-box"
     >
       <template #acao>
-        <v-chip color="primary" variant="flat" size="large" prepend-icon="mdi-account-group">
-          {{ desempenho.length }} alunos · {{ xpDaTurma }} XP
-        </v-chip>
+        <span class="win-sunken-panel">{{ desempenho.length }} alunos &middot; {{ xpDaTurma }} XP</span>
       </template>
     </CabecalhoPagina>
 
-    <!-- Cards KPI do Painel -->
-    <v-row class="mb-6">
-      <v-col cols="12" sm="4">
-        <v-card class="pa-4 ge-kpi-card" elevation="0">
-          <div class="d-flex align-center justify-space-between">
-            <div>
-              <span class="text-caption text-medium-emphasis">Total de Alunos</span>
-              <h3 class="text-h4 font-weight-bold mt-1">{{ desempenho.length }}</h3>
-            </div>
-            <v-avatar color="primary" rounded="lg" size="44">
-              <v-icon icon="mdi-account-multiple" color="white" />
-            </v-avatar>
-          </div>
-          <span class="text-caption text-medium-emphasis mt-2 d-block">
-            Matriculados no curso atual
-          </span>
-        </v-card>
-      </v-col>
+    <!-- Instrumentos (KPIs) -->
+    <div class="ge-kpis">
+      <fieldset class="win-groupbox ge-kpi">
+        <legend class="ge-legenda">Total de Alunos</legend>
+        <div class="ge-lcd">{{ desempenho.length }}</div>
+        <span class="ge-nota">Matriculados no curso atual</span>
+      </fieldset>
+      <fieldset class="win-groupbox ge-kpi">
+        <legend class="ge-legenda">Media de Acertos da Turma</legend>
+        <div class="ge-lcd">{{ mediaAcertoTurma }}%</div>
+        <span class="ge-nota">Baseado em todas as tentativas</span>
+      </fieldset>
+      <fieldset class="win-groupbox ge-kpi">
+        <legend class="ge-legenda">Alunos em Atencao</legend>
+        <div :class="['ge-lcd', { 'ge-lcd--alerta': alunosEmAtencao > 0 }]">{{ alunosEmAtencao }}</div>
+        <span class="ge-nota">
+          <span :class="['ge-led', alunosEmAtencao > 0 ? 'ge-led--vermelho' : 'ge-led--verde']" />
+          Taxa de acerto abaixo de 50%
+        </span>
+      </fieldset>
+    </div>
 
-      <v-col cols="12" sm="4">
-        <v-card class="pa-4 ge-kpi-card" elevation="0">
-          <div class="d-flex align-center justify-space-between">
-            <div>
-              <span class="text-caption text-medium-emphasis">Media de Acertos da Turma</span>
-              <h3 class="text-h4 font-weight-bold mt-1">{{ mediaAcertoTurma }}%</h3>
-            </div>
-            <v-avatar color="info" rounded="lg" size="44">
-              <v-icon icon="mdi-bullseye-arrow" color="white" />
-            </v-avatar>
-          </div>
-          <span class="text-caption text-medium-emphasis mt-2 d-block">
-            Baseado em todas as tentativas
-          </span>
-        </v-card>
-      </v-col>
+    <div v-if="carregando" class="win-sunken-panel my-2">Calculando desempenho...</div>
+    <div v-if="erro" class="ge-aviso win-raised">&#10006; {{ erro }}</div>
+    <div v-if="sucessoNota" class="ge-aviso win-raised">&#10004; {{ sucessoNota }}</div>
 
-      <v-col cols="12" sm="4">
-        <v-card class="pa-4 ge-kpi-card" elevation="0">
-          <div class="d-flex align-center justify-space-between">
-            <div>
-              <span class="text-caption text-medium-emphasis">Alunos em Atencao</span>
-              <h3 class="text-h4 font-weight-bold mt-1" :class="alunosEmAtencao > 0 ? 'text-error' : 'text-success'">
-                {{ alunosEmAtencao }}
-              </h3>
-            </div>
-            <v-avatar :color="alunosEmAtencao > 0 ? 'error' : 'success'" rounded="lg" size="44">
-              <v-icon :icon="alunosEmAtencao > 0 ? 'mdi-alert-circle-outline' : 'mdi-check-all'" color="white" />
-            </v-avatar>
-          </div>
-          <span class="text-caption text-medium-emphasis mt-2 d-block">
-            Taxa de acerto abaixo de 50%
-          </span>
-        </v-card>
-      </v-col>
-    </v-row>
-
-    <v-progress-linear v-if="carregando" color="primary" indeterminate rounded class="mb-4" />
-    <v-alert v-if="erro" type="error" class="mb-4">{{ erro }}</v-alert>
-    <v-alert v-if="sucessoNota" type="success" closable class="mb-4">{{ sucessoNota }}</v-alert>
-
-    <v-card elevation="0" class="rounded-xl">
-      <v-card-item class="border-b py-3 px-4">
-        <div class="d-flex align-center justify-space-between">
-          <span class="font-weight-bold text-subtitle-1">Quadro de Acompanhamento Individual</span>
-          <span class="text-caption text-medium-emphasis">Acoes rapidas do professor</span>
-        </div>
-      </v-card-item>
-
-      <v-table v-if="desempenho.length" class="ge-tabela">
+    <fieldset class="win-groupbox">
+      <legend class="ge-legenda">Quadro de Acompanhamento Individual</legend>
+      <table v-if="desempenho.length" class="win-table">
         <thead>
           <tr>
+            <th>ID</th>
             <th>Aluno</th>
-            <th class="text-right">XP</th>
-            <th class="text-right">Tentativas</th>
-            <th class="text-right">Acertos</th>
-            <th class="text-right">Taxa de acerto</th>
-            <th class="text-center">Acoes</th>
+            <th class="ge-dir">XP</th>
+            <th class="ge-dir">Tentativas</th>
+            <th class="ge-dir">Acertos</th>
+            <th class="ge-dir">Taxa de acerto</th>
+            <th>Acoes</th>
           </tr>
         </thead>
         <tbody>
           <tr v-for="aluno in desempenho" :key="aluno.alunoId">
+            <td class="ge-mono">#{{ aluno.alunoId }}</td>
+            <td>{{ aluno.nome }}</td>
+            <td class="ge-dir ge-mono"><strong>{{ aluno.xpTotal }}</strong></td>
+            <td class="ge-dir ge-mono">{{ aluno.tentativas }}</td>
+            <td class="ge-dir ge-mono">{{ aluno.acertos }}</td>
+            <td class="ge-dir ge-mono">
+              <span :class="['ge-led', `ge-led--${cor(aluno.taxaAcerto)}`]" />
+              {{ Math.round(aluno.taxaAcerto * 100) }}%
+            </td>
             <td>
-              <div class="d-flex align-center ga-3 py-1">
-                <v-avatar color="primary" size="34" class="text-white font-weight-bold">
-                  {{ aluno.nome.charAt(0) }}
-                </v-avatar>
-                <div>
-                  <span class="font-weight-medium d-block">{{ aluno.nome }}</span>
-                  <span class="text-caption text-medium-emphasis">ID #{{ aluno.alunoId }}</span>
-                </div>
-              </div>
-            </td>
-            <td class="text-right font-weight-bold">{{ aluno.xpTotal }}</td>
-            <td class="text-right">{{ aluno.tentativas }}</td>
-            <td class="text-right">{{ aluno.acertos }}</td>
-            <td class="text-right">
-              <v-chip :color="cor(aluno.taxaAcerto)" variant="tonal" size="small" class="font-weight-bold">
-                {{ Math.round(aluno.taxaAcerto * 100) }}%
-              </v-chip>
-            </td>
-            <td class="text-center">
-              <v-btn
-                size="small"
-                variant="outlined"
-                color="primary"
-                prepend-icon="mdi-clipboard-edit-outline"
-                @click="abrirModalNota(aluno)"
-              >
-                Lancar Nota
-              </v-btn>
+              <v-btn size="small" @click="abrirModalNota(aluno)">Lancar Nota</v-btn>
             </td>
           </tr>
         </tbody>
-      </v-table>
+      </table>
 
       <EstadoVazio
         v-else-if="!carregando && !erro"
         icone="mdi-account-group-outline"
         mensagem="Nenhum aluno matriculado neste curso ainda."
       />
-    </v-card>
+    </fieldset>
 
-    <!-- Dialog Modal para Lancar Nota (US02 / NotaController) -->
-    <v-dialog v-model="modalNotaAberto" max-width="480">
-      <v-card class="pa-4 rounded-xl">
-        <v-card-item class="pb-1">
-          <v-card-title class="font-weight-bold text-h6">
-            Lancar Avaliacao
-          </v-card-title>
-          <v-card-subtitle v-if="alunoSelecionado">
+    <!-- Caixa de dialogo para Lancar Nota (US02 / NotaController) -->
+    <div v-if="modalNotaAberto" class="ge-modal-fundo">
+      <div class="ge-dialogo win-raised" role="dialog" aria-modal="true">
+        <div class="win-titlebar">
+          <span class="win-titlebar-text">Lancar Avaliacao</span>
+          <button class="win-control-btn" aria-label="Fechar" @click="modalNotaAberto = false">&#10005;</button>
+        </div>
+        <div class="ge-dialogo-corpo">
+          <p v-if="alunoSelecionado" class="mb-3">
             Aluno: <strong>{{ alunoSelecionado.nome }}</strong> (ID: {{ alunoSelecionado.alunoId }})
-          </v-card-subtitle>
-        </v-card-item>
-
-        <v-card-text class="pt-3">
-          <v-text-field
-            v-model="avaliacaoNome"
-            label="Descricao da Avaliacao"
-            placeholder="Ex: Prova 1, Projeto Pratico, Trabalho Semestral"
-            class="mb-3"
-          />
-          <v-text-field
-            v-model="notaValor"
-            label="Nota (0.0 a 10.0)"
-            type="number"
-            step="0.1"
-            min="0"
-            max="10"
-          />
-        </v-card-text>
-
-        <v-card-actions class="px-4 pb-2">
-          <v-spacer />
-          <v-btn variant="text" @click="modalNotaAberto = false">Cancelar</v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            :loading="salvandoNota"
-            prepend-icon="mdi-check"
-            @click="confirmarLancamentoNota"
-          >
-            Salvar Nota
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+          </p>
+          <label class="ge-campo">
+            <span><u>D</u>escricao da Avaliacao:</span>
+            <input
+              v-model="avaliacaoNome"
+              class="win-sunken"
+              placeholder="Ex: Prova 1, Projeto Pratico, Trabalho Semestral"
+            />
+          </label>
+          <label class="ge-campo">
+            <span><u>N</u>ota (0.0 a 10.0):</span>
+            <input v-model="notaValor" class="win-sunken ge-curto" type="number" step="0.1" min="0" max="10" />
+          </label>
+        </div>
+        <div class="ge-dialogo-acoes">
+          <button class="win-btn win-btn-default" :disabled="salvandoNota" @click="confirmarLancamentoNota">
+            {{ salvandoNota ? 'Aguarde...' : 'Salvar Nota' }}
+          </button>
+          <button class="win-btn" @click="modalNotaAberto = false">Cancelar</button>
+        </div>
+      </div>
+    </div>
   </section>
 </template>
 
 <style scoped>
-.ge-kpi-card {
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(var(--v-theme-surface), 1) 0%, rgba(var(--v-theme-background), 0.5) 100%);
+.ge-legenda {
+  font-weight: bold;
+  font-size: 11px;
+  padding: 0 3px;
 }
 
-.ge-tabela :deep(thead th) {
-  font-weight: 600;
-  text-transform: uppercase;
-  font-size: 0.72rem;
-  letter-spacing: 0.06em;
-  color: rgba(var(--v-theme-on-surface), 0.6);
+.ge-mono {
+  font-family: var(--win-font-mono);
 }
 
-.ge-tabela :deep(tbody tr:hover) {
-  background-color: rgba(var(--v-theme-primary), 0.04);
+.ge-dir {
+  text-align: right !important;
+}
+
+.ge-kpis {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.ge-lcd {
+  background: #0a1a0a;
+  color: #33ff33;
+  font-family: var(--win-font-mono);
+  font-size: 24px;
+  line-height: 1.1;
+  padding: 3px 8px;
+  text-align: right;
+  border-top: 2px solid var(--win-gray-dark);
+  border-left: 2px solid var(--win-gray-dark);
+  border-right: 2px solid var(--win-white);
+  border-bottom: 2px solid var(--win-white);
+  text-shadow: 0 0 4px currentColor;
+}
+
+.ge-lcd--alerta {
+  color: #ff5544;
+}
+
+.ge-nota {
+  display: block;
+  font-size: 10px;
+  margin-top: 3px;
+}
+
+.ge-led {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid #000;
+  margin-right: 3px;
+  vertical-align: middle;
+}
+
+.ge-led--verde, .ge-led--success { background: #00d000; box-shadow: 0 0 3px #00ff00; }
+.ge-led--warning { background: #e0c000; box-shadow: 0 0 3px #ffee00; }
+.ge-led--vermelho, .ge-led--error { background: #e00000; box-shadow: 0 0 3px #ff0000; }
+
+.ge-aviso {
+  padding: 4px 8px;
+  margin: 6px 0;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.ge-modal-fundo {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 20000;
+}
+
+.ge-dialogo {
+  width: 380px;
+  padding: 2px;
+}
+
+.ge-dialogo-corpo {
+  padding: 12px;
+  font-size: 11px;
+}
+
+.ge-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 8px;
+}
+
+.ge-campo input {
+  padding: 3px 4px;
+  font-size: 12px;
+  outline: none;
+}
+
+.ge-curto {
+  width: 90px;
+}
+
+.ge-dialogo-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+  padding: 0 12px 10px;
+}
+
+.ge-dialogo-acoes .win-btn {
+  min-width: 80px;
 }
 </style>

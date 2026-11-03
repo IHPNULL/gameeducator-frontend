@@ -39,153 +39,134 @@ onMounted(() => {
       icone="mdi-trophy"
     >
       <template #acao>
-        <v-chip color="warning" variant="flat" size="large" prepend-icon="mdi-crown">
-          Temporada Ativa
-        </v-chip>
+        <span class="win-sunken-panel">TEMPORADA ATIVA</span>
       </template>
     </CabecalhoPagina>
 
-    <!-- Galeria de Conquistas / Medalhas do Aluno -->
-    <v-card class="mb-6 pa-4 ge-conquistas-card" elevation="0">
-      <div class="d-flex align-center justify-space-between mb-3">
-        <div class="d-flex align-center ga-2">
-          <v-icon icon="mdi-medal-outline" color="warning" size="22" />
-          <span class="text-subtitle-1 font-weight-bold">Quadro de Medalhas</span>
-        </div>
-        <span class="text-caption text-medium-emphasis">
-          {{ medalhas.length }} de {{ CONQUISTAS_POSSIVEIS.length }} desbloqueadas
-        </span>
-      </div>
-
-      <v-row density="compact">
-        <v-col
+    <!-- Quadro de medalhas -->
+    <fieldset class="win-groupbox">
+      <legend class="ge-legenda">
+        Quadro de Medalhas &mdash; {{ medalhas.length }} de {{ CONQUISTAS_POSSIVEIS.length }} desbloqueadas
+      </legend>
+      <div class="ge-medalhas">
+        <div
           v-for="c in CONQUISTAS_POSSIVEIS"
           :key="c.marco"
-          cols="6"
-          sm="3"
+          :class="['ge-medalha', possuiMedalha(c.marco) ? 'win-raised' : 'win-sunken ge-medalha--bloq']"
         >
-          <v-card
-            variant="outlined"
-            :class="[
-              'pa-3 text-center rounded-xl ge-badge-card',
-              possuiMedalha(c.marco) ? 'ge-badge-desbloqueada' : 'ge-badge-bloqueada'
-            ]"
-          >
-            <v-avatar
-              :color="possuiMedalha(c.marco) ? 'warning' : 'surface-variant'"
-              size="40"
-              class="mb-2"
-            >
-              <v-icon
-                :icon="c.icone"
-                :color="possuiMedalha(c.marco) ? 'white' : 'medium-emphasis'"
-              />
-            </v-avatar>
-            <div class="text-subtitle-2 font-weight-bold">{{ c.titulo }}</div>
-            <div class="text-caption font-weight-medium text-primary">{{ c.marco }} XP</div>
-            <v-chip
-              size="x-small"
-              :color="possuiMedalha(c.marco) ? 'success' : 'surface-variant'"
-              variant="flat"
-              class="mt-1"
-            >
-              {{ possuiMedalha(c.marco) ? 'Conquistada' : 'Bloqueada' }}
-            </v-chip>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-card>
-
-    <v-progress-linear v-if="carregando" color="primary" indeterminate rounded class="mb-4" />
-    <v-alert v-if="erro" type="error" variant="tonal" class="mb-4">{{ erro }}</v-alert>
-
-    <!-- Tabela / Lista do Ranking -->
-    <v-card elevation="0" class="rounded-xl">
-      <v-card-item class="border-b py-3 px-4">
-        <div class="d-flex align-center justify-space-between">
-          <span class="font-weight-bold text-subtitle-1">Classificacao Geral</span>
-          <span class="text-caption text-medium-emphasis">{{ ranking.length }} competidores</span>
+          <v-icon :icon="c.icone" size="22" :class="possuiMedalha(c.marco) ? 'ge-ouro' : ''" />
+          <div class="ge-medalha__info">
+            <strong>{{ c.titulo }}</strong>
+            <span class="ge-mono">{{ c.marco }} XP</span>
+            <span class="ge-medalha__st">{{ possuiMedalha(c.marco) ? 'Conquistada' : 'Bloqueada' }}</span>
+          </div>
         </div>
-      </v-card-item>
+      </div>
+    </fieldset>
 
-      <v-list density="comfortable" class="pa-2">
-        <v-list-item
-          v-for="item in ranking"
-          :key="item.alunoId"
-          :data-testid="`ranking-linha-${item.alunoId}`"
-          :class="['rounded-lg mb-1 pa-3', { 'ranking-eu': souEu(item.alunoId) }]"
-        >
-          <template #prepend>
-            <v-avatar
-              :color="CORES_DO_PODIO[item.posicao] ?? 'surface-variant'"
-              size="38"
-              class="mr-3 font-weight-black text-body-1"
-            >
-              <v-icon v-if="item.posicao === 1" icon="mdi-trophy" color="white" size="20" />
-              <v-icon v-else-if="item.posicao === 2 || item.posicao === 3" icon="mdi-medal" color="white" size="20" />
-              <span v-else class="text-body-2">{{ item.posicao }}</span>
-            </v-avatar>
-          </template>
+    <div v-if="carregando" class="win-sunken-panel my-2">Consultando RANKING.DBF...</div>
+    <div v-if="erro" class="ge-erro win-raised">&#10006; {{ erro }}</div>
 
-          <v-list-item-title class="font-weight-bold text-body-1">
-            {{ item.posicao }}. {{ item.nomeAluno }}
-            <v-chip
-              v-if="souEu(item.alunoId)"
-              size="x-small"
-              color="primary"
-              variant="flat"
-              class="ml-2 font-weight-bold"
-            >
-              voce
-            </v-chip>
-          </v-list-item-title>
-
-          <template #append>
-            <v-chip
-              color="primary"
-              variant="tonal"
-              size="default"
-              class="font-weight-bold px-3"
-              prepend-icon="mdi-lightning-bolt"
-            >
-              {{ item.xpTotal }} XP
-            </v-chip>
-          </template>
-        </v-list-item>
-
-        <v-list-item v-if="!carregando && !erro && ranking.length === 0" class="pa-4 text-center">
-          <span class="text-medium-emphasis">Ninguem pontuou neste curso ainda.</span>
-        </v-list-item>
-      </v-list>
-    </v-card>
+    <!-- Classificacao -->
+    <fieldset class="win-groupbox">
+      <legend class="ge-legenda">Classificacao Geral &mdash; {{ ranking.length }} competidores</legend>
+      <table class="win-table">
+        <thead>
+          <tr>
+            <th class="ge-col-pos">Pos.</th>
+            <th>Aluno</th>
+            <th class="ge-col-id">ID</th>
+            <th class="ge-col-xp">XP Total</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="item in ranking"
+            :key="item.alunoId"
+            :data-testid="`ranking-linha-${item.alunoId}`"
+            :class="{ 'ranking-eu': souEu(item.alunoId) }"
+          >
+            <td class="ge-mono">
+              <span :style="{ color: souEu(item.alunoId) ? undefined : CORES_DO_PODIO[item.posicao] }">
+                {{ item.posicao <= 3 ? '&#9733;' : '&nbsp;' }}
+              </span>
+              {{ String(item.posicao).padStart(2, '0') }}
+            </td>
+            <td>
+              {{ item.posicao }}. {{ item.nomeAluno }}
+              <span v-if="souEu(item.alunoId)"> &lt;-- voce</span>
+            </td>
+            <td class="ge-mono">{{ item.alunoId }}</td>
+            <td class="ge-mono ge-col-xp">{{ item.xpTotal }} XP</td>
+          </tr>
+          <tr v-if="!carregando && !erro && ranking.length === 0">
+            <td colspan="4" class="ge-vazio">Ninguem pontuou neste curso ainda.</td>
+          </tr>
+        </tbody>
+      </table>
+    </fieldset>
   </section>
 </template>
 
 <style scoped>
-.ranking-eu {
-  background-color: rgba(var(--v-theme-primary), 0.12) !important;
-  border: 1px solid rgba(var(--v-theme-primary), 0.3);
+.ge-legenda {
+  font-weight: bold;
+  font-size: 11px;
+  padding: 0 3px;
 }
 
-.ge-conquistas-card {
-  background: linear-gradient(135deg, rgba(var(--v-theme-surface), 1) 0%, rgba(var(--v-theme-background), 0.6) 100%);
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+.ge-mono {
+  font-family: var(--win-font-mono);
 }
 
-.ge-badge-card {
-  transition: transform 0.2s ease;
+.ge-medalhas {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 6px;
 }
 
-.ge-badge-card:hover {
-  transform: translateY(-2px);
+.ge-medalha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  font-size: 11px;
 }
 
-.ge-badge-desbloqueada {
-  border-color: rgba(var(--v-theme-warning), 0.5);
-  background: rgba(var(--v-theme-warning), 0.04);
+.ge-medalha--bloq {
+  background-color: var(--win-gray) !important;
+  color: var(--win-gray-dark) !important;
 }
 
-.ge-badge-bloqueada {
-  opacity: 0.6;
+.ge-medalha__info {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.25;
+}
+
+.ge-medalha__st {
+  font-size: 10px;
+  text-transform: uppercase;
+}
+
+.ge-ouro {
+  color: #b08000;
+}
+
+.ge-erro {
+  padding: 4px 8px;
+  margin: 6px 0;
+  font-weight: bold;
+  font-size: 11px;
+}
+
+.ge-col-pos { width: 56px; }
+.ge-col-id { width: 50px; }
+.ge-col-xp { width: 100px; text-align: right; }
+
+.ge-vazio {
+  text-align: center;
+  padding: 12px !important;
+  color: var(--win-gray-dark);
 }
 </style>

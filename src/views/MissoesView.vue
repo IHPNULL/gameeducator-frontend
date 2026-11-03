@@ -61,271 +61,272 @@ onMounted(carregar)
       icone="mdi-sword-cross"
     >
       <template #acao>
-        <v-btn
-          color="accent"
-          variant="tonal"
-          prepend-icon="mdi-robot-outline"
-          class="mr-2"
-          @click="irParaAssistente"
-        >
-          Duvidas com IA
-        </v-btn>
+        <button class="win-btn" @click="irParaAssistente">
+          <v-icon icon="mdi-robot-outline" size="14" class="mr-1" />Duvidas com IA...
+        </button>
       </template>
     </CabecalhoPagina>
 
-    <!-- Hero Card Gamificado 2026 -->
-    <v-card class="pa-5 mb-6 ge-hero-card" elevation="0">
-      <v-row align="center">
-        <v-col cols="12" md="7">
-          <div class="d-flex align-center ga-3 mb-2">
-            <v-avatar color="primary" size="48" rounded="xl">
-              <v-icon icon="mdi-trophy-variant" color="white" size="26" />
-            </v-avatar>
-            <div>
-              <span class="text-caption text-medium-emphasis text-uppercase font-weight-bold">
-                Jornada Gamificada
-              </span>
-              <h2 class="text-h5 font-weight-bold">Status do Jogador</h2>
-            </div>
-          </div>
-          <p class="text-body-2 text-medium-emphasis mb-3">
-            Conclua desafios para ganhar mais pontos de experiencia e subir no ranking da turma.
-          </p>
+    <!-- Status do jogador -->
+    <div class="ge-status">
+      <fieldset class="win-groupbox ge-status__progresso">
+        <legend class="ge-legenda">Status do Jogador</legend>
+        <div class="ge-linha-info">
+          <span>Rumo a medalha de {{ proximoMarco }} XP</span>
+          <span class="ge-mono">{{ xpTotal }} / {{ proximoMarco }} XP ({{ progressoPercentual }}%)</span>
+        </div>
+        <div class="win-progress-trough">
+          <div class="win-progress-blocks" :style="{ width: `${progressoPercentual}%` }" />
+        </div>
+        <p class="ge-dica">Conclua desafios para ganhar XP e subir no ranking da turma.</p>
+      </fieldset>
 
-          <div class="ge-progresso-container">
-            <div class="d-flex justify-space-between text-caption font-weight-medium mb-1">
-              <span>Rumo a medalha de {{ proximoMarco }} XP</span>
-              <span>{{ xpTotal }} / {{ proximoMarco }} XP</span>
-            </div>
-            <v-progress-linear
-              :model-value="progressoPercentual"
-              color="primary"
-              height="10"
-              rounded
-              bg-color="surface-variant"
-            />
-          </div>
-        </v-col>
+      <fieldset class="win-groupbox ge-status__xp">
+        <legend class="ge-legenda">XP Total no Curso</legend>
+        <div class="ge-lcd">
+          <strong data-testid="xp-total">{{ xpTotal }}</strong>
+        </div>
+        <span class="ge-dica">pontos acumulados</span>
+      </fieldset>
+    </div>
 
-        <v-col cols="12" md="5" class="d-flex justify-md-end justify-start">
-          <v-card variant="outlined" class="pa-4 bg-surface text-center ge-xp-badge" rounded="xl">
-            <span class="text-caption text-uppercase font-weight-bold text-medium-emphasis d-block mb-1">
-              XP Total no Curso
-            </span>
-            <div class="d-flex align-center justify-center ga-1">
-              <v-icon icon="mdi-lightning-bolt" color="warning" size="32" />
-              <strong data-testid="xp-total" class="text-h3 font-weight-black text-primary">
-                {{ xpTotal }}
-              </strong>
-            </div>
-            <span class="text-caption text-medium-emphasis">pontos acumulados</span>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-card>
-
-    <!-- Alertas de Novas Medalhas Conquistadas -->
-    <div v-if="medalhasRecemConquistadas.length" class="d-flex flex-wrap ga-2 mb-6">
-      <v-chip
+    <!-- Novas medalhas -->
+    <div v-if="medalhasRecemConquistadas.length" class="ge-medalhas">
+      <div
         v-for="marco in medalhasRecemConquistadas"
         :key="marco"
         data-testid="nova-medalha"
-        color="warning"
-        variant="flat"
-        size="large"
-        class="font-weight-bold elevation-1"
-        prepend-icon="mdi-medal"
+        class="ge-aviso ge-aviso--medalha win-raised"
       >
+        <span class="ge-aviso__icone">&#9733;</span>
         Nova medalha: {{ marco }} XP
-      </v-chip>
+      </div>
     </div>
 
-    <v-progress-linear v-if="carregando" color="primary" indeterminate rounded class="mb-4" />
-    <v-alert v-if="erro" type="error" class="mb-4">{{ erro }}</v-alert>
+    <div v-if="carregando" class="ge-carregando win-sunken-panel">Carregando missoes do servidor...</div>
+    <div v-if="erro" class="ge-aviso ge-aviso--erro win-raised">
+      <span class="ge-aviso__icone">&#10006;</span>{{ erro }}
+    </div>
 
-    <!-- Lista de Missoes -->
-    <v-card
-      v-for="missao in missoes"
-      :key="missao.id"
-      class="mb-6 ge-missao-card"
-      elevation="0"
-    >
-      <v-card-item class="pb-3 pt-4 px-5">
-        <template #prepend>
-          <v-avatar color="primary" rounded="lg" size="44">
-            <v-icon icon="mdi-flag-checkered" color="white" />
-          </v-avatar>
-        </template>
-        <v-card-title class="text-wrap text-h6 font-weight-bold">
-          {{ missao.titulo }}
-        </v-card-title>
-        <v-card-subtitle class="text-wrap text-body-2 mt-1">
-          {{ missao.descricao }}
-        </v-card-subtitle>
-        <template #append>
-          <div class="d-flex ga-2 align-center">
-            <v-chip color="primary" variant="tonal" size="default" class="font-weight-bold">
-              <v-icon icon="mdi-lightning-bolt" start size="16" />
-              {{ missao.xpTotal }} XP
-            </v-chip>
-            <v-chip size="small" variant="outlined" color="on-surface">
-              {{ missao.desafios?.length ?? 0 }} desafios
-            </v-chip>
-          </div>
-        </template>
-      </v-card-item>
+    <!-- Lista de missoes -->
+    <div v-for="missao in missoes" :key="missao.id" class="ge-missao win-raised">
+      <div class="ge-missao__barra">
+        <span>&#9873; {{ missao.titulo }}</span>
+        <span class="ge-mono">{{ missao.xpTotal }} XP &middot; {{ missao.desafios?.length ?? 0 }} desafios</span>
+      </div>
+      <p class="ge-missao__desc">{{ missao.descricao }}</p>
 
-      <v-divider />
-
-      <v-card-text class="px-5 py-2">
-        <div
+      <div class="ge-missao__desafios">
+        <fieldset
           v-for="(desafio, i) in missao.desafios"
           :key="desafio.id"
-          :class="['py-4', i < missao.desafios.length - 1 ? 'ge-separador' : '']"
+          class="win-groupbox ge-desafio"
         >
-          <div class="d-flex align-center justify-space-between mb-2">
-            <span class="text-caption font-weight-bold text-uppercase text-medium-emphasis">
-              Desafio #{{ i + 1 }} · Valor: {{ desafio.xp }} XP
-            </span>
+          <legend class="ge-legenda">Desafio #{{ i + 1 }} &middot; Valor: {{ desafio.xp }} XP</legend>
 
-            <!-- Botao para ver historico de tentativas (US01 / Desejavel) -->
-            <v-btn
-              size="x-small"
-              variant="text"
-              color="primary"
-              prepend-icon="mdi-history"
-              @click="alternarHistorico(desafio.id)"
-            >
+          <div class="d-flex justify-space-between align-start ga-2 mb-2">
+            <p class="ge-enunciado">{{ desafio.enunciado }}</p>
+            <button class="win-btn ge-btn-peq" @click="alternarHistorico(desafio.id)">
               {{ historicoAberto[desafio.id] ? 'Ocultar tentativas' : 'Ver tentativas' }}
-            </v-btn>
+            </button>
           </div>
 
-          <p class="text-body-1 font-weight-medium mb-3">{{ desafio.enunciado }}</p>
-
-          <!-- Alternativas interativas -->
-          <div class="d-flex flex-wrap ga-2">
-            <v-btn
+          <div class="ge-alternativas">
+            <button
               v-for="(alternativa, indice) in desafio.alternativas"
               :key="indice"
               :data-testid="`alternativa-${desafio.id}-${indice}`"
-              variant="outlined"
-              size="large"
-              class="ge-alternativa-btn font-weight-regular"
+              class="win-btn ge-alternativa"
               @click="responder(desafio.id, indice)"
             >
-              <span class="ge-alternativa-letra mr-2">{{ String.fromCharCode(65 + indice) }}.</span>
-              {{ alternativa }}
-            </v-btn>
+              <u>{{ String.fromCharCode(65 + indice) }}</u>. {{ alternativa }}
+            </button>
           </div>
 
-          <!-- Feedback do resultado -->
-          <v-alert
+          <div
             v-if="resultados[desafio.id]"
-            :type="resultados[desafio.id].correta ? 'success' : 'error'"
-            density="compact"
-            class="mt-4 rounded-lg font-weight-medium"
+            :class="['ge-aviso', 'win-raised', resultados[desafio.id].correta ? 'ge-aviso--ok' : 'ge-aviso--erro']"
           >
-            <v-icon
-              :icon="resultados[desafio.id].correta ? 'mdi-check-circle' : 'mdi-close-circle'"
-              start
-            />
+            <span class="ge-aviso__icone">{{ resultados[desafio.id].correta ? '&#10004;' : '&#10006;' }}</span>
             {{ resultados[desafio.id].correta ? 'Resposta correta' : 'Resposta incorreta' }}
             (+{{ resultados[desafio.id].xpGanho }} XP)
-          </v-alert>
+          </div>
 
-          <!-- Historico de Tentativas do Desafio -->
-          <div v-if="historicoAberto[desafio.id]" class="mt-4 pa-3 bg-surface-variant rounded-lg border">
-            <div class="d-flex align-center justify-space-between mb-2">
-              <span class="text-caption font-weight-bold">
-                <v-icon icon="mdi-history" size="16" class="mr-1" />
-                Suas Tentativas Anteriores
-              </span>
-              <v-progress-circular
-                v-if="carregandoTentativas[desafio.id]"
-                indeterminate
-                size="16"
-                width="2"
-                color="primary"
-              />
+          <!-- Historico de tentativas -->
+          <div v-if="historicoAberto[desafio.id]" class="mt-2">
+            <div class="ge-linha-info mb-1">
+              <strong>Suas Tentativas Anteriores</strong>
+              <span v-if="carregandoTentativas[desafio.id]" class="ge-mono">lendo...</span>
             </div>
-
-            <div v-if="tentativasPorDesafio[desafio.id] && tentativasPorDesafio[desafio.id].length" class="d-flex flex-column ga-2">
-              <div
-                v-for="t in tentativasPorDesafio[desafio.id]"
-                :key="t.id"
-                class="d-flex align-center justify-space-between pa-2 bg-surface rounded text-caption border"
-              >
-                <div class="d-flex align-center ga-2">
-                  <v-icon
-                    :icon="t.correta ? 'mdi-check-circle' : 'mdi-close-circle'"
-                    :color="t.correta ? 'success' : 'error'"
-                    size="16"
-                  />
-                  <span>Opcao escolhida: {{ String.fromCharCode(65 + t.indiceResposta) }}</span>
-                </div>
-                <div class="d-flex align-center ga-2">
-                  <v-chip size="x-small" :color="t.correta ? 'success' : 'surface-variant'">
-                    +{{ t.xpGanho }} XP
-                  </v-chip>
-                  <span class="text-medium-emphasis">
+            <table v-if="tentativasPorDesafio[desafio.id] && tentativasPorDesafio[desafio.id].length" class="win-table">
+              <thead>
+                <tr>
+                  <th>Resultado</th>
+                  <th>Opcao escolhida</th>
+                  <th>XP</th>
+                  <th>Hora</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="t in tentativasPorDesafio[desafio.id]" :key="t.id">
+                  <td :class="t.correta ? 'ge-ok' : 'ge-erro'">{{ t.correta ? 'ACERTO' : 'ERRO' }}</td>
+                  <td>Opcao escolhida: {{ String.fromCharCode(65 + t.indiceResposta) }}</td>
+                  <td class="ge-mono">+{{ t.xpGanho }} XP</td>
+                  <td class="ge-mono">
                     {{ new Date(t.dataHora).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) }}
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div v-else-if="!carregandoTentativas[desafio.id]" class="text-caption text-medium-emphasis">
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div v-else-if="!carregandoTentativas[desafio.id]" class="win-sunken ge-sem-tentativas">
               Nenhuma tentativa registrada para este desafio ate o momento.
             </div>
           </div>
-        </div>
-      </v-card-text>
-    </v-card>
+        </fieldset>
+      </div>
+    </div>
 
-    <v-card v-if="!carregando && !erro && missoes.length === 0" elevation="0">
-      <EstadoVazio icone="mdi-flag-outline" mensagem="Ainda nao ha missoes publicadas neste curso." />
-    </v-card>
+    <EstadoVazio
+      v-if="!carregando && !erro && missoes.length === 0"
+      icone="mdi-flag-outline"
+      mensagem="Ainda nao ha missoes publicadas neste curso."
+    />
   </section>
 </template>
 
 <style scoped>
-.ge-hero-card {
-  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.08) 0%, rgba(var(--v-theme-surface), 1) 100%);
-  border: 1px solid rgba(var(--v-theme-primary), 0.18);
-  border-radius: 20px;
+.ge-legenda {
+  font-weight: bold;
+  font-size: 11px;
+  padding: 0 3px;
 }
 
-.ge-xp-badge {
-  min-width: 180px;
-  box-shadow: 0 4px 16px rgba(var(--v-theme-primary), 0.08);
+.ge-mono {
+  font-family: var(--win-font-mono);
+  font-size: 11px;
 }
 
-.ge-missao-card {
-  border-radius: 16px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+.ge-status {
+  display: grid;
+  grid-template-columns: 1fr 180px;
+  gap: 8px;
+  margin-bottom: 4px;
 }
 
-.ge-missao-card:hover {
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.04);
+.ge-linha-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  margin-bottom: 3px;
 }
 
-.ge-alternativa-btn {
-  text-transform: none;
-  min-height: 44px;
-  border-radius: 10px;
-  transition: all 0.15s ease;
+.ge-dica {
+  font-size: 10px;
+  margin: 4px 0 0;
 }
 
-.ge-alternativa-btn:hover {
-  border-color: rgb(var(--v-theme-primary));
-  background-color: rgba(var(--v-theme-primary), 0.04);
+.ge-status__xp {
+  text-align: center;
 }
 
-.ge-alternativa-letra {
-  font-weight: 700;
-  color: rgb(var(--v-theme-primary));
+.ge-lcd {
+  background: #0a1a0a;
+  color: #33ff33;
+  font-family: var(--win-font-mono);
+  font-size: 30px;
+  line-height: 1.1;
+  padding: 4px 8px;
+  text-align: right;
+  border-top: 2px solid var(--win-gray-dark);
+  border-left: 2px solid var(--win-gray-dark);
+  border-right: 2px solid var(--win-white);
+  border-bottom: 2px solid var(--win-white);
+  text-shadow: 0 0 4px #33ff33;
 }
 
-.ge-separador {
-  border-bottom: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+.ge-medalhas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 6px 0;
+}
+
+.ge-aviso {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  margin-top: 6px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.ge-aviso__icone {
+  font-size: 14px;
+}
+
+.ge-aviso--ok .ge-aviso__icone { color: #008000; }
+.ge-aviso--erro .ge-aviso__icone { color: #c00000; }
+.ge-aviso--medalha .ge-aviso__icone { color: #b08000; }
+
+.ge-carregando {
+  margin: 6px 0;
+}
+
+.ge-missao {
+  margin: 10px 0;
+  padding: 2px;
+}
+
+.ge-missao__barra {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--win-gray-dark);
+  color: #fff;
+  font-weight: bold;
+  font-size: 12px;
+  padding: 3px 6px;
+}
+
+.ge-missao__desc {
+  font-size: 11px;
+  margin: 4px 6px;
+}
+
+.ge-missao__desafios {
+  padding: 0 6px 4px;
+}
+
+.ge-enunciado {
+  font-size: 13px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.ge-btn-peq {
+  font-size: 10px !important;
+  font-weight: normal !important;
+  white-space: nowrap;
+}
+
+.ge-alternativas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ge-alternativa {
+  font-weight: normal !important;
+  min-width: 90px;
+  text-align: left;
+}
+
+.ge-ok { color: #008000; font-weight: bold; }
+.ge-erro { color: #c00000; font-weight: bold; }
+
+.ge-sem-tentativas {
+  padding: 6px;
+  font-size: 11px;
 }
 </style>
