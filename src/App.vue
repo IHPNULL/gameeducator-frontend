@@ -195,16 +195,16 @@ onBeforeUnmount(() => clearInterval(temporizador))
             <div class="ge-no">&#128190; Disco local (C:)</div>
             <div class="ge-no ge-n1">&#128193; GAMEEDU</div>
             <div class="ge-titulo-app ge-n2">GameEducator</div>
-            <div
+            <button
               v-for="item in ITENS_DO_MENU"
               :key="item.caminho"
+              type="button"
               :class="['ge-no', 'ge-n2', 'ge-arquivo', { selecionado: route.path === item.caminho }]"
-              role="link"
               @click="abrir(item.caminho)"
             >
               <v-icon :icon="item.icone" size="13" class="mr-1" />{{ item.titulo }}
               <span v-if="item.badge" class="ge-badge">{{ item.badge }}</span>
-            </div>
+            </button>
           </div>
 
           <fieldset class="win-groupbox ge-simular">
@@ -489,6 +489,13 @@ onBeforeUnmount(() => clearInterval(temporizador))
 }
 
 .ge-arquivo {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  display: flex;
+  align-items: center;
   cursor: pointer;
   border: 1px dotted transparent;
 }
