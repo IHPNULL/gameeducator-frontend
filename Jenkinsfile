@@ -73,6 +73,19 @@ pipeline {
             }
         }
 
+        stage('Deploy (Fake / Simulado)') {
+            steps {
+                echo "=== EXECUTANDO FAKE DEPLOY (FRONTEND) ==="
+                echo "Ambiente alvo: Staging / Local Simulado"
+                echo "Artefato: gameeducator-frontend:${IMAGE_TAG}"
+                sh """
+                    echo '[Fake Deploy] Simulando deploy do container frontend...'
+                    echo '[Fake Deploy] Enviando imagem gameeducator-frontend:${IMAGE_TAG} para servidor Web...'
+                    echo '[Fake Deploy] Fake deploy do frontend concluido com SUCESSO!'
+                """
+            }
+        }
+
         stage('Publish') {
             when {
                 branch 'main'
