@@ -7,14 +7,14 @@ defineProps({
 </script>
 
 <template>
-  <header class="d-flex align-center justify-space-between flex-wrap ga-4 mb-6">
-    <div class="d-flex align-center ga-3">
-      <v-avatar v-if="icone" color="surface-variant" size="44" rounded="lg">
-        <v-icon :icon="icone" color="primary" />
-      </v-avatar>
+  <header class="ge-cabecalho">
+    <div class="d-flex align-center ga-2">
+      <span v-if="icone" class="ge-cabecalho__icone win-raised">
+        <v-icon :icon="icone" size="20" />
+      </span>
       <div>
-        <h2 class="text-h5 font-weight-bold ge-titulo">{{ titulo }}</h2>
-        <p v-if="subtitulo" class="text-body-2 text-medium-emphasis mt-1">{{ subtitulo }}</p>
+        <h2 class="ge-cabecalho__titulo">{{ titulo }}</h2>
+        <p v-if="subtitulo" class="ge-cabecalho__sub">{{ subtitulo }}</p>
       </div>
     </div>
     <slot name="acao" />
@@ -22,8 +22,34 @@ defineProps({
 </template>
 
 <style scoped>
-.ge-titulo {
-  letter-spacing: -0.015em;
+.ge-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding-bottom: 6px;
+  margin-bottom: 8px;
+  border-bottom: 2px groove var(--win-gray-light);
+}
+
+.ge-cabecalho__icone {
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ge-cabecalho__titulo {
+  font-size: 15px;
+  font-weight: bold;
   line-height: 1.2;
+  margin: 0;
+}
+
+.ge-cabecalho__sub {
+  font-size: 11px;
+  margin: 1px 0 0;
 }
 </style>
