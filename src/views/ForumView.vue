@@ -12,11 +12,6 @@ const props = defineProps({
 const { posts, novoPost, rascunhoResposta, carregando, erro, carregar, publicar, responder } =
   useForum(props.cursoId)
 
-/** Iniciais do autor para o avatar da publicacao. */
-function iniciais(nome) {
-  return (nome ?? '?').trim().charAt(0).toUpperCase()
-}
-
 onMounted(carregar)
 </script>
 
@@ -28,133 +23,193 @@ onMounted(carregar)
       icone="mdi-forum"
     />
 
-    <!-- Card de Publicar Nova Duvida -->
-    <v-card class="mb-6 ge-novo-post-card rounded-xl" elevation="0">
-      <v-card-item class="pb-1 pt-4 px-5">
-        <div class="d-flex align-center ga-2">
-          <v-avatar color="primary" size="32">
-            <v-icon icon="mdi-pencil-outline" color="white" size="18" />
-          </v-avatar>
-          <v-card-title class="text-subtitle-1 font-weight-bold">Criar Nova Publicacao</v-card-title>
-        </div>
-      </v-card-item>
-      <v-card-text class="px-5 pt-3">
-        <CampoTexto
-          v-model="novoPost.titulo"
-          testid="novo-post-titulo"
-          label="Titulo da sua duvida ou topico"
-          class="mb-3"
-        />
-        <CampoTexto
-          v-model="novoPost.conteudo"
-          testid="novo-post-conteudo"
-          label="Explique sua duvida em detalhes..."
-          type="textarea"
-        />
-      </v-card-text>
-      <v-card-actions class="px-5 pb-4 pt-0">
-        <v-spacer />
-        <v-btn
+    <!-- Publicar nova duvida (Compositor de Mensagem BBS) -->
+    <fieldset class="win-groupbox mb-3">
+      <legend class="ge-legenda">Nova Mensagem no Forum (BBS)</legend>
+      <CampoTexto
+        v-model="novoPost.titulo"
+        testid="novo-post-titulo"
+        label="Assunto da mensagem"
+        class="mb-2"
+      />
+      <CampoTexto
+        v-model="novoPost.conteudo"
+        testid="novo-post-conteudo"
+        label="Texto da mensagem"
+        type="textarea"
+        class="mb-2"
+      />
+      <div class="d-flex justify-end">
+        <button
           data-testid="publicar-post"
-          variant="flat"
-          color="primary"
-          prepend-icon="mdi-send"
-          class="px-5 font-weight-bold"
+          class="win-btn win-btn-default font-weight-bold"
           @click="publicar"
         >
-          Publicar no Forum
-        </v-btn>
-      </v-card-actions>
-    </v-card>
+          &#9993; Publicar no Forum
+        </button>
+      </div>
+    </fieldset>
 
-    <v-progress-linear v-if="carregando" color="primary" indeterminate rounded class="mb-4" />
-    <v-alert v-if="erro" type="error" class="mb-4">{{ erro }}</v-alert>
+    <div v-if="carregando" class="win-sunken-panel my-2">Sincronizando topicos do FORUM.BBS...</div>
+    <div v-if="erro" class="ge-aviso ge-aviso--erro win-raised mb-2">&#10006; {{ erro }}</div>
 
-    <!-- Lista de Posts do Forum -->
-    <v-card
-      v-for="post in posts"
-      :key="post.id"
-      class="mb-5 ge-post-card rounded-xl"
-      elevation="0"
-    >
-      <v-card-item class="pb-2 pt-4 px-5">
-        <template #prepend>
-          <v-avatar color="primary" size="42" class="font-weight-bold text-white">
-            {{ iniciais(post.autorNome) }}
-          </v-avatar>
-        </template>
-        <v-card-title class="text-wrap text-h6 font-weight-bold">
-          {{ post.titulo }}
-        </v-card-title>
-        <v-card-subtitle class="text-wrap text-body-2 mt-1">
-          <span class="font-weight-medium text-primary">{{ post.autorNome }}</span>: {{ post.conteudo }}
-        </v-card-subtitle>
-      </v-card-item>
+    <!-- Lista de posts -->
+    <div v-for="post in posts" :key="post.id" class="ge-post win-raised mb-3">
+      <div class="ge-post__cabecalho">
+        <span class="ge-post__assunto">&#128196; Assunto: <strong>{{ post.titulo }}</strong></span>
+        <span class="ge-mono">MSG #{{ post.id }} &middot; De: <strong>{{ post.autorNome }}</strong></span>
+      </div>
 
-      <v-card-text class="px-5 pb-4">
-        <!-- Respostas existentes -->
-        <div v-if="post.respostas && post.respostas.length" class="ge-respostas mb-4 mt-2">
-          <div
-            v-for="resposta in post.respostas"
-            :key="resposta.id"
-            class="ge-resposta-item pa-3 rounded-lg bg-surface-variant mb-2"
-          >
-            <div class="d-flex align-center ga-2 mb-1">
-              <v-avatar color="secondary" size="24" class="text-white text-caption font-weight-bold">
-                {{ iniciais(resposta.autorNome) }}
-              </v-avatar>
-              <strong class="text-caption font-weight-bold text-primary">{{ resposta.autorNome }}</strong>
-            </div>
-            <p class="ge-resposta-texto text-body-2 mb-0 pl-7">
-              {{ resposta.conteudo }}
-            </p>
+      <div class="ge-post__corpo win-sunken">
+        {{ post.conteudo }}
+      </div>
+
+      <!-- Respostas na thread -->
+      <div v-if="post.respostas && post.respostas.length" class="ge-thread">
+        <div class="ge-thread__rotulo">Respostas na discussao:</div>
+        <div v-for="resp in post.respostas" :key="resp.id" class="ge-resposta win-raised">
+          <div class="ge-resposta__meta">
+            <span>&#8627; De: <strong>{{ resp.autorNome }}</strong></span>
+            <span v-if="resp.dataHora" class="ge-mono">
+              {{ new Date(resp.dataHora).toLocaleString('pt-BR') }}
+            </span>
+          </div>
+          <div class="ge-resposta__conteudo win-sunken">
+            {{ resp.conteudo }}
           </div>
         </div>
+      </div>
 
-        <v-divider class="my-3" />
+      <!-- Formulario de resposta -->
+      <div class="ge-responder">
+        <label class="ge-campo">
+          <span class="ge-campo__label">Responder a este topico:</span>
+          <div class="d-flex ga-2">
+            <input
+              v-model="rascunhoResposta[post.id]"
+              :data-testid="`resposta-${post.id}`"
+              class="win-sunken flex-grow-1"
+              placeholder="Digite sua resposta..."
+              @keyup.enter="responder(post.id)"
+            />
+            <button
+              :data-testid="`responder-${post.id}`"
+              class="win-btn"
+              @click="responder(post.id)"
+            >
+              Responder
+            </button>
+          </div>
+        </label>
+      </div>
+    </div>
 
-        <!-- Caixa de Resposta -->
-        <div class="d-flex align-center ga-3 flex-wrap">
-          <CampoTexto
-            v-model="rascunhoResposta[post.id]"
-            :testid="`resposta-${post.id}`"
-            label="Escreva uma resposta para este topico..."
-            class="flex-grow-1 ge-resposta"
-          />
-          <v-btn
-            :data-testid="`responder-${post.id}`"
-            variant="flat"
-            color="primary"
-            prepend-icon="mdi-reply"
-            @click="responder(post.id)"
-          >
-            Responder
-          </v-btn>
-        </div>
-      </v-card-text>
-    </v-card>
-
-    <v-card v-if="!carregando && !erro && posts.length === 0" elevation="0">
-      <EstadoVazio
-        icone="mdi-forum-outline"
-        mensagem="Ainda nao ha publicacoes no forum deste curso. Seja o primeiro a perguntar!"
-      />
-    </v-card>
+    <EstadoVazio
+      v-if="!carregando && !erro && posts.length === 0"
+      icone="mdi-forum-outline"
+      mensagem="Nenhum topico publicado neste forum ainda. Seja o primeiro a postar!"
+    />
   </section>
 </template>
 
 <style scoped>
-.ge-novo-post-card {
-  background: linear-gradient(135deg, rgba(var(--v-theme-surface), 1) 0%, rgba(var(--v-theme-background), 0.5) 100%);
-  border: 1px solid rgba(var(--v-theme-primary), 0.15);
+.ge-legenda {
+  font-weight: bold;
+  font-size: 11px;
+  padding: 0 3px;
 }
 
-.ge-post-card {
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
-  transition: box-shadow 0.2s ease;
+.ge-mono {
+  font-family: var(--win-font-mono);
 }
 
-.ge-post-card:hover {
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+.ge-aviso {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.ge-aviso--erro {
+  color: #c00000;
+}
+
+.ge-post {
+  padding: 2px;
+}
+
+.ge-post__cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: var(--win-gray-dark);
+  color: #fff;
+  padding: 3px 6px;
+  font-size: 11px;
+}
+
+.ge-post__assunto {
+  font-size: 12px;
+}
+
+.ge-post__corpo {
+  padding: 8px 10px;
+  margin: 4px;
+  font-size: 12px;
+  line-height: 1.4;
+  white-space: pre-wrap;
+}
+
+.ge-thread {
+  margin: 6px 4px;
+  padding-left: 14px;
+  border-left: 2px groove var(--win-gray-light);
+}
+
+.ge-thread__rotulo {
+  font-size: 10px;
+  font-weight: bold;
+  color: var(--win-gray-dark);
+  margin-bottom: 4px;
+}
+
+.ge-resposta {
+  padding: 2px;
+  margin-bottom: 4px;
+}
+
+.ge-resposta__meta {
+  display: flex;
+  justify-content: space-between;
+  padding: 2px 4px;
+  font-size: 10px;
+  background-color: var(--win-gray);
+}
+
+.ge-resposta__conteudo {
+  padding: 4px 6px;
+  margin: 2px;
+  font-size: 11px;
+}
+
+.ge-responder {
+  padding: 4px 6px;
+}
+
+.ge-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.ge-campo__label {
+  font-size: 10px;
+  font-weight: bold;
+}
+
+.ge-campo input {
+  padding: 3px 4px;
+  font-size: 11px;
+  outline: none;
 }
 </style>

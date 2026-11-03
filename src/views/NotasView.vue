@@ -16,11 +16,6 @@ const media = computed(() => {
   return (soma / notas.value.length).toFixed(1)
 })
 
-/** Verde a partir de 6.0 (aprovado), vermelho abaixo disso. */
-function cor(valor) {
-  return Number(valor) >= 6 ? 'success' : 'error'
-}
-
 function statusAprovacao(valor) {
   return Number(valor) >= 6 ? 'Aprovado' : 'Em Recuperacao'
 }
@@ -36,104 +31,114 @@ onMounted(carregar)
       icone="mdi-clipboard-text"
     >
       <template #acao>
-        <v-chip
-          v-if="media"
-          :color="Number(media) >= 6 ? 'success' : 'warning'"
-          variant="flat"
-          size="large"
-          prepend-icon="mdi-calculator"
-          class="font-weight-bold"
-        >
-          Media Geral: {{ media }}
-        </v-chip>
+        <span v-if="media" class="win-sunken-panel">
+          MEDIA GERAL: {{ media }} / 10.0
+        </span>
       </template>
     </CabecalhoPagina>
 
-    <!-- Resumo de Desempenho Academico -->
-    <v-card v-if="notas.length" class="mb-6 pa-5 ge-resumo-card" elevation="0">
-      <v-row align="center">
-        <v-col cols="12" sm="8">
-          <div class="d-flex align-center ga-3 mb-1">
-            <v-avatar :color="Number(media) >= 6 ? 'success' : 'warning'" size="44" rounded="lg">
-              <v-icon :icon="Number(media) >= 6 ? 'mdi-school' : 'mdi-alert-circle'" color="white" />
-            </v-avatar>
-            <div>
-              <span class="text-caption text-medium-emphasis text-uppercase font-weight-bold">
-                Situacao no Curso
-              </span>
-              <h3 class="text-h6 font-weight-bold">
-                {{ Number(media) >= 6 ? 'Rendimento Adequado' : 'Abaixo da Media de Aprovacao' }}
-              </h3>
-            </div>
-          </div>
-          <p class="text-body-2 text-medium-emphasis">
+    <!-- Resumo do Boletim -->
+    <fieldset v-if="notas.length" class="win-groupbox mb-3">
+      <legend class="ge-legenda">Situacao Geral no Curso</legend>
+      <div class="d-flex align-center justify-space-between flex-wrap ga-2">
+        <div>
+          <strong>{{ Number(media) >= 6 ? 'Rendimento Adequado' : 'Abaixo da Media de Aprovacao' }}</strong>
+          <p class="ge-dica">
             {{ notas.length }} avaliacao(oes) computada(s). A media minima para aprovacao e 6.0.
           </p>
-        </v-col>
+        </div>
+        <div class="ge-lcd">
+          MEDIA: {{ media }}
+        </div>
+      </div>
+    </fieldset>
 
-        <v-col cols="12" sm="4" class="text-sm-right">
-          <v-chip
-            :color="Number(media) >= 6 ? 'success' : 'error'"
-            variant="tonal"
-            size="large"
-            class="font-weight-bold text-h6 px-4"
-          >
-            {{ media }} / 10.0
-          </v-chip>
-        </v-col>
-      </v-row>
-    </v-card>
+    <div v-if="carregando" class="win-sunken-panel my-2">Lendo NOTAS.DBF...</div>
+    <div v-if="erro" class="ge-aviso ge-aviso--erro win-raised mb-2">&#10006; {{ erro }}</div>
 
-    <v-progress-linear v-if="carregando" color="primary" indeterminate rounded class="mb-4" />
-    <v-alert v-if="erro" type="error" class="mb-4">{{ erro }}</v-alert>
-
-    <v-card elevation="0" class="rounded-xl">
-      <v-card-item class="border-b py-3 px-4">
-        <span class="font-weight-bold text-subtitle-1">Boletim de Avaliacoes</span>
-      </v-card-item>
-
-      <v-list v-if="notas.length" density="comfortable" class="py-2">
-        <template v-for="(nota, i) in notas" :key="nota.id">
-          <v-divider v-if="i > 0" />
-          <v-list-item class="py-3 px-4">
-            <template #prepend>
-              <v-avatar color="surface-variant" rounded="lg" size="40" class="mr-3">
-                <v-icon icon="mdi-clipboard-check-outline" color="primary" />
-              </v-avatar>
-            </template>
-            <v-list-item-title class="font-weight-bold text-body-1">
-              {{ nota.avaliacao }}: {{ nota.valor }}
-            </v-list-item-title>
-            <v-list-item-subtitle class="text-caption text-medium-emphasis mt-1">
-              Avaliacao lancada pelo professor do curso
-            </v-list-item-subtitle>
-            <template #append>
-              <div class="d-flex align-center ga-2">
-                <v-chip :color="cor(nota.valor)" variant="tonal" size="small" class="font-weight-bold">
-                  {{ statusAprovacao(nota.valor) }}
-                </v-chip>
-                <v-chip :color="cor(nota.valor)" variant="flat" size="default" class="font-weight-black">
-                  {{ nota.valor }}
-                </v-chip>
-              </div>
-            </template>
-          </v-list-item>
-        </template>
-      </v-list>
+    <!-- Tabela do Boletim -->
+    <fieldset class="win-groupbox">
+      <legend class="ge-legenda">Boletim Escolar de Avaliacoes</legend>
+      <table v-if="notas.length" class="win-table">
+        <thead>
+          <tr>
+            <th class="ge-col-id">Item</th>
+            <th>Descricao da Avaliacao</th>
+            <th class="ge-dir ge-col-nota">Nota</th>
+            <th class="ge-col-st">Situacao</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="(n, i) in notas" :key="n.id">
+            <td class="ge-mono">#{{ i + 1 }}</td>
+            <td><strong>{{ n.avaliacao }}</strong></td>
+            <td class="ge-dir ge-mono"><strong>{{ n.valor }}</strong></td>
+            <td>
+              <span :class="Number(n.valor) >= 6 ? 'ge-ok' : 'ge-erro'">
+                {{ statusAprovacao(n.valor) }}
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
       <EstadoVazio
         v-else-if="!carregando && !erro"
         icone="mdi-clipboard-outline"
-        mensagem="Nenhuma avaliacao lancada ate agora."
+        mensagem="Nenhuma nota formal foi registrada para voce neste curso."
       />
-    </v-card>
+    </fieldset>
   </section>
 </template>
 
 <style scoped>
-.ge-resumo-card {
-  border-radius: 16px;
-  background: linear-gradient(135deg, rgba(var(--v-theme-surface), 1) 0%, rgba(var(--v-theme-background), 0.5) 100%);
-  border: 1px solid rgba(var(--v-theme-on-surface), 0.08);
+.ge-legenda {
+  font-weight: bold;
+  font-size: 11px;
+  padding: 0 3px;
 }
+
+.ge-mono {
+  font-family: var(--win-font-mono);
+}
+
+.ge-dir {
+  text-align: right !important;
+}
+
+.ge-dica {
+  font-size: 10px;
+  margin: 2px 0 0;
+}
+
+.ge-lcd {
+  background: #0a1a0a;
+  color: #33ff33;
+  font-family: var(--win-font-mono);
+  font-size: 20px;
+  line-height: 1.1;
+  padding: 3px 8px;
+  border-top: 2px solid var(--win-gray-dark);
+  border-left: 2px solid var(--win-gray-dark);
+  border-right: 2px solid var(--win-white);
+  border-bottom: 2px solid var(--win-white);
+  text-shadow: 0 0 4px #33ff33;
+}
+
+.ge-aviso {
+  padding: 4px 8px;
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.ge-aviso--erro {
+  color: #c00000;
+}
+
+.ge-col-id { width: 44px; }
+.ge-col-nota { width: 80px; }
+.ge-col-st { width: 130px; }
+
+.ge-ok { color: #008000; font-weight: bold; }
+.ge-erro { color: #c00000; font-weight: bold; }
 </style>

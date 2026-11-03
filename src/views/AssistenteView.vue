@@ -8,7 +8,7 @@ const props = defineProps({
   cursoId: { type: Number, required: true },
 })
 
-const router = useRouter()
+const router = useRouter ? useRouter() : null
 const {
   recomendacoes,
   carregandoRecomendacoes,
@@ -35,7 +35,7 @@ function enviar(sugestao) {
 }
 
 function abrirMissao() {
-  router.push('/missoes')
+  if (router) router.push('/missoes')
 }
 
 onMounted(() => {
@@ -51,206 +51,233 @@ onMounted(() => {
       icone="mdi-robot-outline"
     >
       <template #acao>
-        <v-chip
-          :color="recomendacoes.origem === 'ia' ? 'success' : 'info'"
-          variant="flat"
-          size="large"
-          prepend-icon="mdi-brain"
-        >
-          IA: {{ recomendacoes.origem === 'ia' ? 'Conectada (RAG)' : 'Modo Fallback' }}
-        </v-chip>
+        <span class="win-sunken-panel">
+          IA: {{ recomendacoes.origem === 'ia' ? 'ONLINE (RAG)' : 'FALLBACK' }}
+        </span>
       </template>
     </CabecalhoPagina>
 
-    <!-- Recomendacoes de Missoes -->
-    <v-card class="mb-6 ge-card-destaque" elevation="0">
-      <v-card-item class="pb-2">
-        <template #prepend>
-          <v-avatar color="primary" rounded="lg" size="44">
-            <v-icon icon="mdi-lightbulb-on-outline" color="white" />
-          </v-avatar>
-        </template>
-        <v-card-title class="text-subtitle-1 font-weight-bold">
-          Missoes Recomendadas para o seu Perfil
-        </v-card-title>
-        <v-card-subtitle>
-          Recomendacao personalizada baseada no seu progresso no curso
-        </v-card-subtitle>
-        <template #append>
-          <v-btn
-            size="small"
-            variant="text"
-            icon="mdi-refresh"
-            :loading="carregandoRecomendacoes"
-            aria-label="Atualizar recomendacoes"
-            @click="carregarRecomendacoes"
-          />
-        </template>
-      </v-card-item>
-
-      <v-card-text>
-        <div v-if="recomendacoes.itens && recomendacoes.itens.length" class="d-flex flex-wrap ga-3">
-          <v-card
-            v-for="item in recomendacoes.itens"
-            :key="item.missaoId"
-            variant="outlined"
-            class="flex-grow-1 ge-rec-item pa-3"
-            @click="abrirMissao"
-          >
-            <div class="d-flex align-center justify-space-between mb-2">
-              <span class="text-subtitle-2 font-weight-bold">{{ item.titulo }}</span>
-              <v-chip color="primary" size="x-small" variant="tonal">
-                Score: {{ (item.pontuacao * 100).toFixed(0) }}%
-              </v-chip>
-            </div>
-            <p class="text-body-2 text-medium-emphasis mb-2">{{ item.motivo }}</p>
-            <div class="d-flex justify-end">
-              <v-btn size="x-small" variant="tonal" append-icon="mdi-arrow-right">
-                Jogar agora
-              </v-btn>
-            </div>
-          </v-card>
-        </div>
-        <div v-else class="text-caption text-medium-emphasis">
-          Nenhuma recomendacao pendente. Todas as missoes concluidas ou indisponiveis.
-        </div>
-      </v-card-text>
-    </v-card>
-
-    <!-- Chat com o Assistente -->
-    <v-card class="ge-chat-container d-flex flex-column" elevation="0">
-      <v-card-item class="border-b py-3 px-4">
-        <div class="d-flex align-center ga-2">
-          <v-icon icon="mdi-message-text-outline" color="primary" />
-          <span class="font-weight-bold text-body-1">Conversa com o Tutor Virtual</span>
-        </div>
-      </v-card-item>
-
-      <v-card-text class="flex-grow-1 ge-chat-mensagens pa-4">
+    <!-- Recomendacoes de Missoes (Destaque do Sistema) -->
+    <fieldset class="win-groupbox mb-3">
+      <legend class="ge-legenda">Missoes Recomendadas para o seu Perfil</legend>
+      <div v-if="recomendacoes.itens && recomendacoes.itens.length" class="ge-recs">
         <div
-          v-for="(msg, i) in mensagens"
-          :key="i"
-          :class="['d-flex mb-4', msg.tipo === 'usuario' ? 'justify-end' : 'justify-start']"
+          v-for="item in recomendacoes.itens"
+          :key="item.missaoId"
+          class="ge-rec-item win-raised"
+          @click="abrirMissao"
         >
-          <div
-            :class="[
-              'ge-bolha pa-3 rounded-xl',
-              msg.tipo === 'usuario' ? 'ge-bolha-usuario bg-primary text-white' : 'ge-bolha-ia bg-surface-variant'
-            ]"
-          >
-            <div class="d-flex align-center justify-space-between mb-1 ga-4">
-              <span class="text-caption font-weight-bold">
-                {{ msg.tipo === 'usuario' ? 'Voce' : 'Assistente IA' }}
-              </span>
-              <span class="text-caption opacity-70">{{ msg.dataHora }}</span>
-            </div>
+          <div class="d-flex justify-space-between align-center mb-1">
+            <span class="ge-mono">&#9658; MISSAO #{{ item.missaoId }}</span>
+            <span class="win-sunken-panel">Relevancia: {{ Math.round(item.pontuacao * 100) }}%</span>
+          </div>
+          <strong class="d-block ge-rec-titulo">{{ item.titulo }}</strong>
+          <span class="ge-dica">{{ item.motivo }}</span>
+        </div>
+      </div>
+      <div v-else class="win-sunken pa-2 ge-mono font-size-11">
+        Nenhuma recomendacao gerada no momento.
+      </div>
+    </fieldset>
 
-            <p class="text-body-2 mb-2 text-wrap" style="white-space: pre-line;">{{ msg.conteudo }}</p>
+    <!-- Terminal de Interacao com o Assistente (ASSIST.COM) -->
+    <fieldset class="win-groupbox">
+      <legend class="ge-legenda">Console de Consulta &mdash; ASSIST.COM</legend>
 
-            <!-- Fontes citadas pelo RAG -->
-            <div v-if="msg.fontes && msg.fontes.length" class="mt-2 pt-2 border-t">
-              <span class="text-caption font-weight-bold d-block mb-1">
-                <v-icon icon="mdi-book-open-outline" size="14" class="mr-1" />
-                Fontes consultadas:
+      <!-- Terminal Screen (Sunken CRT/Console) -->
+      <div class="ge-terminal-tela win-sunken">
+        <div class="ge-terminal-header">
+          Microsoft(R) GameEducator IA Diagnostic Interface v1.0<br />
+          (C) Copyright 1995 B1 Corp. Provedor: {{ recomendacoes.origem || 'sistema' }}<br />
+          Digite sua duvida ou clique em uma das macros sugeridas.
+        </div>
+
+        <div v-if="mensagens.length === 0" class="ge-terminal-prompt-inicial">
+          C:\IA&gt; _
+        </div>
+
+        <!-- Mensagens do historico -->
+        <div v-for="(msg, idx) in mensagens" :key="idx" class="ge-mensagem-bloco">
+          <div v-if="msg.tipo === 'usuario'" class="ge-msg-usr">
+            C:\IA&gt; {{ msg.conteudo }}
+          </div>
+          <div v-else class="ge-msg-ia">
+            <div class="ge-ia-resposta">{{ msg.conteudo }}</div>
+            <div v-if="msg.fontes && msg.fontes.length" class="ge-ia-fontes">
+              [Fontes citadas no banco de conhecimento]:
+              <span v-for="f in msg.fontes" :key="f.id" class="ge-ia-fonte-tag">
+                &middot; {{ f.titulo }} (rel: {{ Math.round(f.relevancia * 100) }}%)
               </span>
-              <div class="d-flex flex-wrap ga-1">
-                <v-chip
-                  v-for="fonte in msg.fontes"
-                  :key="fonte.id"
-                  size="x-small"
-                  variant="outlined"
-                  color="primary"
-                >
-                  {{ fonte.titulo }} ({{ (fonte.relevancia * 100).toFixed(0) }}%)
-                </v-chip>
-              </div>
             </div>
           </div>
         </div>
 
-        <div v-if="carregandoResposta" class="d-flex justify-start mb-4">
-          <div class="ge-bolha ge-bolha-ia pa-3 rounded-xl bg-surface-variant d-flex align-center ga-2">
-            <v-progress-circular indeterminate size="18" width="2" color="primary" />
-            <span class="text-body-2">Consultando o conteudo do curso...</span>
-          </div>
+        <div v-if="carregandoResposta" class="ge-terminal-carregando">
+          C:\IA&gt; CONSULTANDO BASE RAG... [|||||]
         </div>
-      </v-card-text>
+      </div>
 
-      <!-- Sugestoes de perguntas -->
-      <div class="px-4 py-2 border-t bg-background d-flex flex-wrap ga-2">
-        <v-chip
-          v-for="sugestao in SUGESTOES"
-          :key="sugestao"
-          size="small"
-          variant="tonal"
-          class="cursor-pointer"
-          @click="enviar(sugestao)"
+      <!-- Macros / Sugestoes rapidas -->
+      <div class="ge-macros mt-2">
+        <span class="ge-macros-rotulo">Macros:</span>
+        <button
+          v-for="(sug, sIdx) in SUGESTOES"
+          :key="sIdx"
+          class="win-btn ge-macro-btn"
+          @click="enviar(sug)"
         >
-          {{ sugestao }}
-        </v-chip>
+          {{ sug }}
+        </button>
       </div>
 
-      <!-- Barra de envio -->
-      <div class="pa-3 border-t bg-surface">
-        <form @submit.prevent="enviar()" class="d-flex align-center ga-2">
-          <v-text-field
-            v-model="textoPergunta"
-            placeholder="Digite sua duvida sobre o curso..."
-            variant="solo-filled"
-            flat
-            density="compact"
-            rounded="xl"
-            hide-details
-            :disabled="carregandoResposta"
-          />
-          <v-btn
-            color="primary"
-            icon="mdi-send"
-            rounded="circle"
-            :loading="carregandoResposta"
-            :disabled="!textoPergunta.trim()"
-            aria-label="Enviar mensagem"
-            type="submit"
-          />
-        </form>
-      </div>
-    </v-card>
+      <!-- Formulario de envio com submit.prevent -->
+      <form class="ge-form-prompt mt-2" @submit.prevent="enviar()">
+        <span class="ge-prompt-label">C:\IA&gt;</span>
+        <input
+          v-model="textoPergunta"
+          type="text"
+          class="win-sunken ge-prompt-input"
+          placeholder="Escreva sua pergunta para a IA e pressione Enter..."
+          :disabled="carregandoResposta"
+        />
+        <button
+          type="submit"
+          class="win-btn win-btn-default font-weight-bold"
+          :disabled="carregandoResposta || !textoPergunta.trim()"
+        >
+          Enviar
+        </button>
+      </form>
+    </fieldset>
   </section>
 </template>
 
 <style scoped>
-.ge-chat-container {
-  min-height: 480px;
-  border-radius: 16px;
-  overflow: hidden;
+.ge-legenda {
+  font-weight: bold;
+  font-size: 11px;
+  padding: 0 3px;
 }
 
-.ge-chat-mensagens {
-  max-height: 440px;
-  overflow-y: auto;
+.ge-mono {
+  font-family: var(--win-font-mono);
 }
 
-.ge-bolha {
-  max-width: 82%;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+.ge-dica {
+  font-size: 10px;
 }
 
-.ge-card-destaque {
-  background: linear-gradient(135deg, rgba(var(--v-theme-primary), 0.06) 0%, rgba(var(--v-theme-surface), 1) 100%);
-  border: 1px solid rgba(var(--v-theme-primary), 0.15);
+.ge-recs {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 6px;
 }
 
 .ge-rec-item {
+  padding: 6px 8px;
   cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease;
 }
 
-.ge-rec-item:hover {
-  transform: translateY(-2px);
-  border-color: rgb(var(--v-theme-primary));
+.ge-rec-titulo {
+  font-size: 12px;
 }
 
-.cursor-pointer {
-  cursor: pointer;
+.ge-terminal-tela {
+  background: #000000 !important;
+  color: #00ff66 !important;
+  font-family: var(--win-font-mono) !important;
+  font-size: 11px !important;
+  min-height: 240px;
+  max-height: 420px;
+  overflow-y: auto;
+  padding: 8px 10px;
+  line-height: 1.4;
+  border-top: 2px solid var(--win-gray-dark);
+  border-left: 2px solid var(--win-gray-dark);
+  border-right: 2px solid var(--win-white);
+  border-bottom: 2px solid var(--win-white);
+}
+
+.ge-terminal-header {
+  color: #88ff88;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed #008833;
+  padding-bottom: 4px;
+}
+
+.ge-msg-usr {
+  color: #ffffff;
+  font-weight: bold;
+  margin-top: 6px;
+}
+
+.ge-msg-ia {
+  color: #00ff66;
+  margin-top: 4px;
+  padding-left: 10px;
+}
+
+.ge-ia-resposta {
+  white-space: pre-wrap;
+}
+
+.ge-ia-fontes {
+  margin-top: 4px;
+  color: #ffff66;
+  font-size: 10px;
+}
+
+.ge-ia-fonte-tag {
+  display: block;
+  margin-left: 10px;
+}
+
+.ge-terminal-carregando {
+  color: #ffff00;
+  margin-top: 6px;
+  animation: piscar 0.8s infinite;
+}
+
+@keyframes piscar {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+.ge-macros {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.ge-macros-rotulo {
+  font-size: 11px;
+  font-weight: bold;
+}
+
+.ge-macro-btn {
+  font-size: 10px !important;
+  font-weight: normal !important;
+  padding: 1px 6px !important;
+}
+
+.ge-form-prompt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ge-prompt-label {
+  font-family: var(--win-font-mono);
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.ge-prompt-input {
+  flex: 1;
+  padding: 3px 6px;
+  font-family: var(--win-font-mono);
+  font-size: 12px;
+  outline: none;
 }
 </style>
