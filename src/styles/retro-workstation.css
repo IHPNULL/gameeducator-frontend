@@ -1,0 +1,502 @@
+/**
+ * GameEducator v1.95 - Sistema Operacional & Estação de Trabalho Utilitária
+ * Estilo Hiper-realista Autoral Anos 90 (Win95 / OS Utilitário)
+ *
+ * Características:
+ * - Paleta cinza clássica (#C0C0C0), chanfros 3D (bevels) de 2 níveis
+ * - Fundo clássico de desktop Teal (#008080)
+ * - Janelas utilitárias com gradiente clássico azul marinho (#000080 -> #1084D0)
+ * - Barras de título com botões de controle [_] [□] [X]
+ * - Densidade brutal de dados, sem espaços vazios exagerados
+ * - Tipografia de sistema (MS Sans Serif, Tahoma, Lucida Console)
+ * - Barras de status com painéis rebaixados e relógio em tempo real
+ * - Efeito CRT opcional
+ */
+
+:root {
+  --win-gray: #c0c0c0;
+  --win-gray-light: #dfdfdf;
+  --win-gray-dark: #808080;
+  --win-white: #ffffff;
+  --win-black: #000000;
+  --win-desktop: #5c7fb8;
+  --win-blue-title: #000080;
+  --win-blue-title-gradient: #5c7fb8;
+  --win-selection: #000080;
+  --win-selection-text: #ffffff;
+  --win-font-sans: "MS Sans Serif", "Microsoft Sans Serif", Tahoma, "Segoe UI", sans-serif;
+  --win-font-mono: "Lucida Console", "Courier New", Courier, monospace;
+}
+
+/* Reset de bordas e curvas modernas */
+body, #app, .v-application {
+  font-family: var(--win-font-sans) !important;
+  font-size: 12px !important;
+  color: var(--win-black) !important;
+  background-color: var(--win-desktop) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Modos de tema */
+.v-theme--gameEducatorLight {
+  --win-desktop: #5c7fb8;
+  --win-gray: #c0c0c0;
+  --win-gray-dark: #808080;
+  --win-black: #000000;
+  --win-white: #ffffff;
+}
+
+.v-theme--gameEducatorDark {
+  --win-desktop: #111e1e;
+  --win-gray: #2d3330;
+  --win-gray-light: #3e4743;
+  --win-gray-dark: #191c1b;
+  --win-black: #00ff66;
+  --win-white: #4ade80;
+  --win-blue-title: #0f3820;
+  --win-blue-title-gradient: #1c5230;
+  --win-selection: #0f3820;
+  --win-selection-text: #00ff66;
+}
+
+/* Superfícies em Relevo (Raised 3D Bevel) */
+.win-raised {
+  background-color: var(--win-gray) !important;
+  border-top: 2px solid var(--win-white) !important;
+  border-left: 2px solid var(--win-white) !important;
+  border-right: 2px solid var(--win-black) !important;
+  border-bottom: 2px solid var(--win-black) !important;
+  box-shadow: inset 1px 1px 0 var(--win-gray-light), inset -1px -1px 0 var(--win-gray-dark) !important;
+}
+
+/* Superfícies Rebaixadas (Sunken / Inset 3D Bevel) */
+.win-sunken {
+  background-color: var(--win-white) !important;
+  color: var(--win-black) !important;
+  border-top: 2px solid var(--win-gray-dark) !important;
+  border-left: 2px solid var(--win-gray-dark) !important;
+  border-right: 2px solid var(--win-white) !important;
+  border-bottom: 2px solid var(--win-white) !important;
+  box-shadow: inset 1px 1px 0 var(--win-black), inset -1px -1px 0 var(--win-gray-light) !important;
+}
+
+/* Painel Rebaixado Cinza (para Statusbar, Displays, etc) */
+.win-sunken-panel {
+  background-color: var(--win-gray) !important;
+  color: var(--win-black) !important;
+  border-top: 1px solid var(--win-gray-dark) !important;
+  border-left: 1px solid var(--win-gray-dark) !important;
+  border-right: 1px solid var(--win-white) !important;
+  border-bottom: 1px solid var(--win-white) !important;
+  padding: 2px 6px;
+  font-family: var(--win-font-mono);
+  font-size: 11px;
+}
+
+/* Botões 3D Clássicos */
+.win-btn,
+.v-btn.v-btn--density-default,
+.v-btn.v-btn--density-comfortable,
+.v-btn.v-btn--density-compact {
+  font-family: var(--win-font-sans) !important;
+  font-size: 11px !important;
+  font-weight: bold !important;
+  background-color: var(--win-gray) !important;
+  color: var(--win-black) !important;
+  border-top: 2px solid var(--win-white) !important;
+  border-left: 2px solid var(--win-white) !important;
+  border-right: 2px solid var(--win-black) !important;
+  border-bottom: 2px solid var(--win-black) !important;
+  box-shadow: inset 1px 1px 0 var(--win-gray-light), inset -1px -1px 0 var(--win-gray-dark) !important;
+  border-radius: 0 !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+  padding: 2px 10px !important;
+  min-height: 24px !important;
+  cursor: pointer;
+  user-select: none;
+  transition: none !important;
+}
+
+.win-btn:active,
+.v-btn:active,
+.v-btn--active {
+  border-top: 2px solid var(--win-black) !important;
+  border-left: 2px solid var(--win-black) !important;
+  border-right: 2px solid var(--win-white) !important;
+  border-bottom: 2px solid var(--win-white) !important;
+  box-shadow: inset 1px 1px 0 var(--win-gray-dark), inset -1px -1px 0 var(--win-gray-light) !important;
+  padding: 3px 9px 1px 11px !important;
+}
+
+.win-btn:focus-visible,
+.v-btn:focus-visible {
+  outline: 1px dotted var(--win-black) !important;
+  outline-offset: -4px !important;
+}
+
+/* Botão com destaque (Azul Windows 95 ou padrão default) */
+.win-btn-default {
+  border: 2px solid var(--win-black) !important;
+  box-shadow: inset 1px 1px 0 var(--win-white), inset -1px -1px 0 var(--win-gray-dark) !important;
+}
+
+/* Caixas de Grupo (Groupbox / Fieldset) */
+.win-groupbox {
+  border: 2px groove var(--win-gray-light) !important;
+  padding: 8px 10px !important;
+  margin: 8px 0 !important;
+  background-color: var(--win-gray) !important;
+  border-radius: 0 !important;
+  position: relative;
+}
+
+.win-groupbox-legend {
+  font-weight: bold;
+  font-size: 11px;
+  color: var(--win-black);
+  padding: 0 4px;
+  background: var(--win-gray);
+  display: inline-block;
+  margin-top: -16px;
+  margin-left: 4px;
+}
+
+/* Barra de Título Clássica */
+.win-titlebar {
+  background: linear-gradient(90deg, var(--win-blue-title) 0%, var(--win-blue-title-gradient) 100%) !important;
+  color: var(--win-white) !important;
+  font-weight: bold !important;
+  font-size: 11px !important;
+  padding: 3px 4px 3px 6px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  user-select: none !important;
+  line-height: 1.2 !important;
+}
+
+.win-titlebar-text {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #ffffff;
+  font-weight: bold;
+  letter-spacing: 0.3px;
+}
+
+.win-titlebar-controls {
+  display: flex;
+  gap: 2px;
+}
+
+.win-control-btn {
+  width: 16px !important;
+  height: 14px !important;
+  min-width: 16px !important;
+  min-height: 14px !important;
+  background-color: var(--win-gray) !important;
+  color: var(--win-black) !important;
+  border-top: 1px solid var(--win-white) !important;
+  border-left: 1px solid var(--win-white) !important;
+  border-right: 1px solid var(--win-black) !important;
+  border-bottom: 1px solid var(--win-black) !important;
+  font-size: 9px !important;
+  line-height: 11px !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  padding: 0 !important;
+  cursor: pointer !important;
+  box-shadow: none !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.win-control-btn:active {
+  border-top: 1px solid var(--win-black) !important;
+  border-left: 1px solid var(--win-black) !important;
+  border-right: 1px solid var(--win-white) !important;
+  border-bottom: 1px solid var(--win-white) !important;
+}
+
+/* Barra de Menus (Arquivo, Editar, Exibir...) */
+.win-menubar {
+  background-color: var(--win-gray);
+  border-bottom: 1px solid var(--win-gray-dark);
+  padding: 2px 6px;
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: var(--win-black);
+  user-select: none;
+}
+
+.win-menu-item {
+  cursor: pointer;
+  padding: 1px 4px;
+}
+
+.win-menu-item:hover {
+  background-color: var(--win-blue-title);
+  color: var(--win-white);
+}
+
+.win-menu-item u {
+  text-decoration: underline;
+}
+
+/* Barra de Ferramentas / Toolbar */
+.win-toolbar {
+  background-color: var(--win-gray);
+  border-bottom: 1px solid var(--win-gray-dark);
+  padding: 3px 6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+
+.win-toolbar-sep {
+  width: 2px;
+  height: 20px;
+  border-left: 1px solid var(--win-gray-dark);
+  border-right: 1px solid var(--win-white);
+  margin: 0 4px;
+}
+
+/* Abas estilo Fichário / Folder Tabs */
+.win-tabs-bar {
+  display: flex;
+  gap: 2px;
+  border-bottom: 2px solid var(--win-gray-light);
+  padding: 6px 6px 0 6px;
+  background-color: var(--win-gray);
+}
+
+.win-tab {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  background-color: var(--win-gray);
+  border-top: 2px solid var(--win-white);
+  border-left: 2px solid var(--win-white);
+  border-right: 2px solid var(--win-black);
+  border-bottom: none;
+  margin-bottom: -2px;
+  user-select: none;
+}
+
+.win-tab.active {
+  background-color: var(--win-gray);
+  padding-bottom: 5px;
+  border-bottom: 2px solid var(--win-gray);
+  z-index: 2;
+}
+
+/* Barra de Status com Painéis */
+.win-statusbar {
+  background-color: var(--win-gray);
+  border-top: 1px solid var(--win-white);
+  padding: 3px 4px;
+  display: flex;
+  gap: 4px;
+  font-size: 11px;
+}
+
+/* Tabelas Densas Utilitárias */
+.win-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: var(--win-white);
+  color: var(--win-black);
+  border-top: 2px solid var(--win-gray-dark);
+  border-left: 2px solid var(--win-gray-dark);
+  border-right: 2px solid var(--win-white);
+  border-bottom: 2px solid var(--win-white);
+  font-size: 11px;
+}
+
+.win-table th {
+  background-color: var(--win-gray);
+  color: var(--win-black);
+  font-weight: bold;
+  text-align: left;
+  padding: 3px 6px;
+  border-top: 1px solid var(--win-white);
+  border-left: 1px solid var(--win-white);
+  border-right: 1px solid var(--win-black);
+  border-bottom: 1px solid var(--win-black);
+  user-select: none;
+}
+
+.win-table td {
+  padding: 3px 6px;
+  border-right: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.win-table tr:hover td {
+  background-color: #f0f0f0;
+}
+
+.win-table tr.ranking-eu td {
+  background-color: var(--win-selection) !important;
+  color: var(--win-selection-text) !important;
+  font-weight: bold;
+}
+
+/* Barra de Progresso Segmentada Retrô */
+.win-progress-trough {
+  height: 20px;
+  background-color: var(--win-white);
+  border-top: 2px solid var(--win-gray-dark);
+  border-left: 2px solid var(--win-gray-dark);
+  border-right: 2px solid var(--win-white);
+  border-bottom: 2px solid var(--win-white);
+  padding: 2px;
+  position: relative;
+  overflow: hidden;
+}
+
+.win-progress-blocks {
+  height: 100%;
+  background: repeating-linear-gradient(
+    90deg,
+    var(--win-blue-title) 0px,
+    var(--win-blue-title) 10px,
+    var(--win-white) 10px,
+    var(--win-white) 12px
+  );
+  transition: width 0.2s linear;
+}
+
+/* Barra de Tarefas (Taskbar) Fixa no Rodapé */
+.win-taskbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30px;
+  background-color: var(--win-gray);
+  border-top: 2px solid var(--win-white);
+  box-shadow: 0 -1px 0 var(--win-gray-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 2px 4px;
+  z-index: 10000;
+  user-select: none;
+}
+
+.win-start-btn {
+  font-family: var(--win-font-sans);
+  font-weight: 900;
+  font-size: 12px;
+  background-color: var(--win-gray);
+  color: var(--win-black);
+  border-top: 2px solid var(--win-white);
+  border-left: 2px solid var(--win-white);
+  border-right: 2px solid var(--win-black);
+  border-bottom: 2px solid var(--win-black);
+  box-shadow: inset 1px 1px 0 var(--win-gray-light), inset -1px -1px 0 var(--win-gray-dark);
+  padding: 2px 8px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.win-start-btn:active,
+.win-start-btn.active {
+  border-top: 2px solid var(--win-black);
+  border-left: 2px solid var(--win-black);
+  border-right: 2px solid var(--win-white);
+  border-bottom: 2px solid var(--win-white);
+  box-shadow: inset 1px 1px 0 var(--win-gray-dark), inset -1px -1px 0 var(--win-gray-light);
+  padding: 3px 7px 1px 9px;
+}
+
+.win-systray {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-top: 1px solid var(--win-gray-dark);
+  border-left: 1px solid var(--win-gray-dark);
+  border-right: 1px solid var(--win-white);
+  border-bottom: 1px solid var(--win-white);
+  padding: 2px 8px;
+  height: 24px;
+  font-family: var(--win-font-mono);
+  font-size: 11px;
+}
+
+/* Menu Iniciar */
+.win-start-menu {
+  position: fixed;
+  bottom: 30px;
+  left: 2px;
+  width: 220px;
+  background-color: var(--win-gray);
+  border-top: 2px solid var(--win-white);
+  border-left: 2px solid var(--win-white);
+  border-right: 2px solid var(--win-black);
+  border-bottom: 2px solid var(--win-black);
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.4);
+  z-index: 10001;
+  display: flex;
+}
+
+.win-start-sidebar {
+  width: 28px;
+  background: linear-gradient(180deg, #000080 0%, #1084d0 100%);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 8px;
+}
+
+.win-start-sidebar span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 2px;
+}
+
+.win-start-items {
+  flex: 1;
+  padding: 4px 2px;
+}
+
+.win-start-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--win-black);
+}
+
+.win-start-item:hover {
+  background-color: var(--win-blue-title);
+  color: var(--win-white);
+}
+
+/* Filtro Opcional CRT Scanlines */
+.crt-mode::before {
+  content: " ";
+  display: block;
+  position: fixed;
+  top: 0; left: 0; bottom: 0; right: 0;
+  background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+              linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+  z-index: 99999;
+  background-size: 100% 3px, 6px 100%;
+  pointer-events: none;
+}
