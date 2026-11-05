@@ -1,12 +1,12 @@
 # GameEducator - Frontend
 
-Interface web do GameEducator: plataforma de ensino gamificada projetada com uma estética hiper-realista autoral de **Estação de Trabalho dos Anos 90 (Win95 / OS Utilitário)** na paleta `#5c7fb8`. A API Core fica no repositório [gameeducator-backend](https://github.com/IHPNULL/gameeducator-backend) e o serviço de IA no [gameeducator-ia](https://github.com/IHPNULL/gameeducator-ia).
+Interface web do GameEducator: plataforma educacional gamificada com temática retro workstation inspirada em interfaces gráficas clássicas dos anos 90 (estilo Windows 95 / OS Utilitário) na paleta `#5c7fb8`. A API Core fica no repositório [gameeducator-backend](https://github.com/IHPNULL/gameeducator-backend) e o serviço de IA no [gameeducator-ia](https://github.com/IHPNULL/gameeducator-ia).
 
 **Stack:** Vue 3 · Vuetify 3 · Vue Router · Vite 8 · Vitest · Cucumber.js + Playwright
 
 **Integrantes (Grupo 6):** Italo Haas Pascoli (190294) · Maria Eduarda Mota Zandonade (200953)
 
-## Design Autoral dos Anos 90 (Retro Workstation)
+## Interface Retrô (Retro Workstation)
 
 - **Desktop OS Clássico:** Fundo azul-ardósia (`#5c7fb8`), ícones soltos (*Meu Computador*, *Ambiente de Rede*, *Lixeira*), barra de título com botões `[_]`, `[□]`, `[✕]`.
 - **Navegação & Casca:** Barra de Menus funcional (*Arquivo*, *Módulos*, *Exibir* com modo CRT/Scanlines e *Ajuda*), Barra de Ferramentas com atalhos, Árvore Explorer (`C:\GAMEEDU`) e Barra de Tarefas com botão **[ Iniciar ]**, janelas ativas e bandeja (Systray) com relógio digital em tempo real.
@@ -62,5 +62,5 @@ A suíte de UI (Cucumber.js + Playwright) fica no repositório [gameeducator-aut
 
 ## CI / CD
 
-`Jenkinsfile`: build multi-stage, execução de testes unitários e BDD na imagem, build da imagem Nginx e estágio de Fake Deploy para staging simulado.
+`Jenkinsfile`: build multi-stage, execução de testes unitários e BDD na imagem, build da imagem Nginx e estágio de deploy em homologação (staging simulado).
 O job `gameeducator-frontend` do Jenkins local está descrito no repositório do backend (`jenkins/README.md`).

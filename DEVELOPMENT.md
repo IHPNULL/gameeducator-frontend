@@ -1,8 +1,8 @@
-# CLAUDE.md
+# Guia de Desenvolvimento — Frontend
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+Este documento reúne instruções de desenvolvimento, arquitetura, comandos de build, testes e convenções do frontend do GameEducator.
 
-GameEducator frontend: Vue 3 + Vuetify + Vite + vue-router, tested with Vitest. The Spring Boot API lives in the separate `gameeducator-backend` repo. Code and identifiers are in Portuguese (no accents in code) — match that.
+O frontend do GameEducator é uma SPA desenvolvida com Vue 3, Vuetify 3, Vite e Vue Router, testada com Vitest. A API REST em Spring Boot fica no repositório separado `gameeducator-backend`. Código, comentários e identificadores em português (sem acentos no código).
 
 ## Commands
 
