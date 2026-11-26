@@ -111,3 +111,27 @@ export function buscarEventosLaboratorio(laboratorio) {
 export function buscarDesempenhoTurma(cursoId) {
   return request(`/api/cursos/${cursoId}/turma/desempenho`)
 }
+
+// RF04 - agentes de IA com autorizacao do usuario
+export function conversarComAgente(cursoId, mensagem) {
+  return request(`/api/cursos/${cursoId}/agente/mensagens`, {
+    method: 'POST',
+    body: { mensagem },
+  })
+}
+
+export function listarAcoesDoAgente(cursoId) {
+  return request(`/api/cursos/${cursoId}/agente/acoes`)
+}
+
+export function aprovarAcaoDoAgente(cursoId, acaoId) {
+  return request(`/api/cursos/${cursoId}/agente/acoes/${acaoId}/aprovacao`, { method: 'POST' })
+}
+
+export function rejeitarAcaoDoAgente(cursoId, acaoId) {
+  return request(`/api/cursos/${cursoId}/agente/acoes/${acaoId}/rejeicao`, { method: 'POST' })
+}
+
+export function listarMetasDeEstudo(cursoId) {
+  return request(`/api/cursos/${cursoId}/agente/metas`)
+}

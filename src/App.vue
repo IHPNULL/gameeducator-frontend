@@ -24,11 +24,15 @@ if (usuarioAtual() === null) {
   definirUsuarioAtual(usuarioId.value)
 }
 
+/** Id ja gravado no localStorage: a tela so remonta depois que as requisicoes levam o usuario novo. */
+const usuarioDaTela = ref(usuarioId.value)
+
 function salvarUsuario(novoId) {
   if (novoId !== undefined) {
     usuarioId.value = novoId
   }
   definirUsuarioAtual(usuarioId.value)
+  usuarioDaTela.value = usuarioId.value
 }
 
 function alternarTema() {
@@ -61,6 +65,7 @@ const ARQUIVOS = {
   '/ranking': 'RANKING.DBF',
   '/painel-professor': 'PAINEL.EXE',
   '/assistente': 'ASSIST.COM',
+  '/agente': 'AGENTE.EXE',
   '/laboratorio': 'LABIOT.SYS',
 }
 
@@ -239,7 +244,8 @@ onBeforeUnmount(() => clearInterval(temporizador))
 
         <v-main class="ge-main">
           <div class="win-sunken ge-documento">
-            <router-view />
+            <!-- remonta a tela ao trocar de usuario: cada um ve os proprios dados (e o seu agente de IA) -->
+            <router-view :key="usuarioDaTela" />
           </div>
         </v-main>
       </v-layout>
